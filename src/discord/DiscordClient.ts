@@ -108,11 +108,15 @@ export default class DiscordClient {
             body.content = `<@${roleId}>`;
         }
 
-        if (!this.messageId) {
-            const jsonResponse = await this.discordRequests.createMessage(this.discordData.discordChannelId, body);
-            this.messageId = jsonResponse.id;
-        } else {
-            await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, body);
+        try {
+            if (!this.messageId) {
+                const jsonResponse = await this.discordRequests.createMessage(this.discordData.discordChannelId, body);
+                this.messageId = jsonResponse.id;
+            } else {
+                await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, body);
+            }
+        } catch (err) {
+            Logger.error(`DiscordClients ${this.discordData.twitchChannelName} error:\n${err}`);
         }
     }
 

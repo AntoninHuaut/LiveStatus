@@ -19,26 +19,30 @@ export default class TwitchRunnable {
     public async tick(): Promise<any> {
         Logger.debug(`TwitchRunnable (${this.twitchUsername}) ticking`);
 
-        const json = await this.twitchRequest.getStreams(this.twitchUsername);
-        Logger.debug(`\n${JSON.stringify(json, null, 2)}`);
+        try {
+            const json = await this.twitchRequest.getStreams(this.twitchUsername);
+            Logger.debug(`\n${JSON.stringify(json, null, 2)}`);
 
-        const dataArray = json.data;
-        const liveModel: LiveModel = this.twitchCache.get(this.twitchUsername);
+            const dataArray = json.data;
+            const liveModel: LiveModel = this.twitchCache.get(this.twitchUsername);
 
-        if (dataArray.length) {
-            const dataLive = dataArray[0];
-            if (dataLive.type === 'live') {
-                liveModel.isOnline = true;
-                liveModel.gameName = dataLive.game_name;
-                liveModel.streamTitle = dataLive.title;
-                liveModel.viewerCount = dataLive.viewer_count;
-                liveModel.startedAt = new Date(dataLive.started_at);
-                liveModel.streamImageUrl = dataLive.thumbnail_url;
-                liveModel.gameImageUrl = dataLive.game_name;
-                return;
+            if (dataArray.length) {
+                const dataLive = dataArray[0];
+                if (dataLive.type === 'live') {
+                    liveModel.isOnline = true;
+                    liveModel.gameName = dataLive.game_name;
+                    liveModel.streamTitle = dataLive.title;
+                    liveModel.viewerCount = dataLive.viewer_count;
+                    liveModel.startedAt = new Date(dataLive.started_at);
+                    liveModel.streamImageUrl = dataLive.thumbnail_url;
+                    liveModel.gameImageUrl = dataLive.game_name;
+                    return;
+                }
             }
-        }
 
-        liveModel.isOnline = false;
+            liveModel.isOnline = false;
+        } catch (err) {
+            Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err}`);
+        }
     }
 }
