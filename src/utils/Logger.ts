@@ -8,10 +8,11 @@ enum LogLevel {
 
 export default class Logger {
 
-    private static readonly DEBUG: boolean = true;
+    private static readonly DEBUG: boolean = false;
     private static readonly LOG_FILE: string = "app.log";
 
     private static log(finalMsg: string) {
+        // @ts-ignore
         Deno.writeTextFileSync(Logger.LOG_FILE, finalMsg + "\n", {append: true});
     }
 
