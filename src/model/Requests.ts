@@ -10,7 +10,8 @@ export namespace Requests {
 
     export enum HttpMethod {
         GET = "GET",
-        POST = "POST"
+        POST = "POST",
+        PATCH = "PATCH"
     }
 
     export async function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body: any) {
