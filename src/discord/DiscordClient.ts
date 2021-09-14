@@ -105,7 +105,7 @@ export default class DiscordClient {
 
         const roleId = this.discordData.discordRoleMentionId;
         if (!this.messageId && roleId?.trim()) {
-            body.content = `<@${roleId}>`;
+            body.content = `<@&${roleId}>`;
         }
 
         try {
