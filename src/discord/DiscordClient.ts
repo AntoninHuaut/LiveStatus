@@ -50,13 +50,13 @@ export default class DiscordClient {
 
     private static readonly COLOR_OFFLINE = 9807270;
     private static readonly COLOR_ONLINE = 10181046;
-    private static readonly NB_TRY_API_CRASH = 3;
+    private static readonly DELAY_BEFORE_OFFLINE: number = 2.5 * 60 * 1000; // In Ms, prevent stream crash
 
     private readonly discordRequests: DiscordRequests;
     private readonly discordData: Discord;
 
     private messageId: string = '';
-    private preventAPICrash: number = 0;
+    private lastOnlineTime: number = 0;
 
     public constructor(discordRequests: DiscordRequests, discordData: Discord) {
         this.discordRequests = discordRequests;
@@ -75,16 +75,16 @@ export default class DiscordClient {
     }
 
     private async offlineTick(liveModel: LiveModel) {
-        if (this.preventAPICrash > 0) {
-            this.preventAPICrash--;
-        } else {
+        const lastOnlineDateWithDelay: Date = new Date(this.lastOnlineTime + DiscordClient.DELAY_BEFORE_OFFLINE);
+
+        if (lastOnlineDateWithDelay < new Date()) {
             await this.sendOfflineMessage(liveModel);
             this.messageId = '';
         }
     }
 
     private async onlineTick(liveModel: LiveModel) {
-        this.preventAPICrash = DiscordClient.NB_TRY_API_CRASH;
+        this.lastOnlineTime = Date.now();
         await this.sendOnlineMessage(liveModel);
     }
 
