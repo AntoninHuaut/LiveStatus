@@ -5,6 +5,7 @@ export interface TwitchConfig {
 }
 
 export interface DiscordData {
+    discordGuildId: string;
     discordChannelId: string;
     discordRoleMentionId: string;
     twitchChannelName: string;
