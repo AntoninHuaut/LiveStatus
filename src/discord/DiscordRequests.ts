@@ -1,7 +1,5 @@
-import {ConfigModule} from "../model/Config.ts";
-import {Requests} from "../model/Requests.ts";
-import HttpMethod = Requests.HttpMethod;
-import DiscordConfig = ConfigModule.DiscordConfig;
+import { DiscordConfig } from "../model/Config.ts";
+import { HttpMethod, fetchURL } from "../model/Requests.ts";
 
 export default class DiscordRequests {
 
@@ -24,6 +22,6 @@ export default class DiscordRequests {
             'Authorization': 'Bot ' + this.discordConfig.discordToken,
             'Content-Type': 'application/json'
         });
-        return await Requests.fetchURL(`https://discord.com/api/${apiPath}`, httpMethod, headers, body);
+        return await fetchURL(`https://discord.com/api/${apiPath}`, httpMethod, headers, body);
     }
 }

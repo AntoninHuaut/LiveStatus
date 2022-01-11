@@ -1,24 +1,21 @@
-export namespace ConfigModule {
+export interface TwitchConfig {
+    clientId: string;
+    clientSecret: string;
+    checkIntervalMs: number;
+}
 
-    export interface TwitchConfig {
-        clientId: string;
-        clientSecret: string;
-        checkIntervalMs: number;
-    }
+export interface DiscordData {
+    discordChannelId: string;
+    discordRoleMentionId: string;
+    twitchChannelName: string;
+}
 
-    export interface Discord {
-        discordChannelId: string;
-        discordRoleMentionId: string;
-        twitchChannelName: string;
-    }
+export interface DiscordConfig {
+    discordToken: string;
+    discords: DiscordData[];
+}
 
-    export interface DiscordConfig {
-        discordToken: string;
-        discords: Discord[];
-    }
-
-    export interface Config {
-        twitchConfig: TwitchConfig;
-        discordConfig: DiscordConfig;
-    }
+export interface Config {
+    twitchConfig: TwitchConfig;
+    discordConfig: DiscordConfig;
 }

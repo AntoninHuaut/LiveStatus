@@ -9,16 +9,16 @@ export default class LiveModel {
 
     private readonly _userName: string;
 
-    private _isOnline: boolean = false;
+    private _isOnline = false;
 
-    private _gameName: string = '';
+    private _gameName = '';
 
-    private _streamTitle: string = '';
-    private _viewerCount: number = 0;
+    private _streamTitle = '';
+    private _viewerCount = 0;
     private _startedAt: Date = new Date(0);
 
-    private _streamImageUrl: string = '';
-    private _gameImageUrl: string = '';
+    private _streamImageUrl = '';
+    private _gameImageUrl = '';
 
     public constructor(userName: string) {
         this._userName = userName;
@@ -32,54 +32,54 @@ export default class LiveModel {
         return this._isOnline;
     }
 
+    set isOnline(value: boolean) {
+        this._isOnline = value;
+    }
+
     get gameName(): string {
         return this._gameName;
-    }
-
-    get streamTitle(): string {
-        return this._streamTitle;
-    }
-
-    get viewerCount(): number {
-        return this._viewerCount;
-    }
-
-    get startedAt(): Date {
-        return this._startedAt;
-    }
-
-    get streamImageUrl(): string {
-        return this._streamImageUrl;
-    }
-
-    get gameImageUrl(): string {
-        return this._gameImageUrl;
     }
 
     set gameName(value: string) {
         this._gameName = value;
     }
 
-    set isOnline(value: boolean) {
-        this._isOnline = value;
+    get streamTitle(): string {
+        return this._streamTitle;
     }
 
     set streamTitle(value: string) {
         this._streamTitle = value;
     }
 
+    get viewerCount(): number {
+        return this._viewerCount;
+    }
+
     set viewerCount(value: number) {
         this._viewerCount = value;
+    }
+
+    get startedAt(): Date {
+        return this._startedAt;
     }
 
     set startedAt(value: Date) {
         this._startedAt = value;
     }
 
+    get streamImageUrl(): string {
+        return this._streamImageUrl;
+    }
+
     set streamImageUrl(streamImageUrl: string) {
         this._streamImageUrl = streamImageUrl
             .replace('{width}', String(LiveModel.STREAM_IMAGE_WIDTH))
             .replace('{height}', String(LiveModel.STREAM_IMAGE_HEIGHT));
+    }
+
+    get gameImageUrl(): string {
+        return this._gameImageUrl;
     }
 
     set gameImageUrl(gameId: string) {

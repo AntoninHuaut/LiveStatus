@@ -1,22 +1,20 @@
-import {ConfigModule} from "../model/Config.ts";
+import { TwitchConfig } from "../model/Config.ts";
 import Logger from "../utils/Logger.ts";
-import {Requests} from "../model/Requests.ts";
-import TwitchConfig = ConfigModule.TwitchConfig;
-import HttpMethod = Requests.HttpMethod;
+import { HttpMethod, fetchURL } from "../model/Requests.ts";
 
 export default class TwitchRequest {
 
     private readonly twitchConfig: TwitchConfig;
 
-    private _accessToken: string = '';
+    private _accessToken = "";
     private accessTokenExpirationDate: Date = new Date(0);
 
-    public constructor(twitchConfig: ConfigModule.TwitchConfig) {
+    public constructor(twitchConfig: TwitchConfig) {
         this.twitchConfig = twitchConfig;
     }
 
     public async getStreams(twitchUserName: string) {
-        const queryParams: string = new URLSearchParams({user_login: twitchUserName}).toString();
+        const queryParams: string = new URLSearchParams({ user_login: twitchUserName }).toString();
         return await this.fetchHelix(`streams?` + queryParams).then(res => res.json());
     }
 
@@ -34,7 +32,7 @@ export default class TwitchRequest {
             grant_type: 'client_credentials'
         }).toString();
 
-        const res: Response = await Requests.fetchURL(`https://id.twitch.tv/oauth2/token?` + queryParams, HttpMethod.POST, new Headers(), null);
+        const res: Response = await fetchURL(`https://id.twitch.tv/oauth2/token?` + queryParams, HttpMethod.POST, new Headers(), null);
         if (res.status != 200) {
             const body = await res.text();
             Logger.error(`Unable to generate accessToken: \n${body}`);
@@ -52,6 +50,6 @@ export default class TwitchRequest {
             'Authorization': 'Bearer ' + validAccessToken,
             'client-id': this.twitchConfig.clientId,
         });
-        return await Requests.fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers, null);
+        return await fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers, null);
     }
 }

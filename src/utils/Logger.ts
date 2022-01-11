@@ -12,8 +12,7 @@ export default class Logger {
     private static readonly LOG_FILE: string = "app.log";
 
     private static log(finalMsg: string) {
-        // @ts-ignore
-        Deno.writeTextFileSync(Logger.LOG_FILE, finalMsg + "\n", {append: true});
+        Deno.writeTextFileSync(Logger.LOG_FILE, finalMsg + "\n", { append: true });
     }
 
     public static debug(msg: string) {

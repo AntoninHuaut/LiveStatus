@@ -16,7 +16,7 @@ export default class TwitchRunnable {
         Logger.info(`new TwitchRunnable (${twitchUsername})`);
     }
 
-    public async tick(): Promise<any> {
+    public async tick(): Promise<void> {
         Logger.debug(`TwitchRunnable (${this.twitchUsername}) ticking`);
 
         try {

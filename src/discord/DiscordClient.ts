@@ -2,7 +2,7 @@ import dayjs from "https://cdn.skypack.dev/dayjs";
 import relativeTime from "https://cdn.skypack.dev/dayjs/plugin/relativeTime";
 import fr from "https://cdn.skypack.dev/dayjs/locale/fr";
 import LiveModel from "../model/LiveModel.ts";
-import {ConfigModule} from "../model/Config.ts";
+import { DiscordData } from "../model/Config.ts";
 import TwitchCache from "../twitch/TwitchCache.ts";
 import DiscordRequests from "./DiscordRequests.ts";
 import Logger from "../utils/Logger.ts";
@@ -10,7 +10,7 @@ import Logger from "../utils/Logger.ts";
 dayjs.extend(relativeTime);
 dayjs.locale(fr);
 
-import Discord = ConfigModule.Discord;
+import MessageIdCache from "./MessageIdCache.ts";
 
 interface Image {
     url: string;
@@ -53,14 +53,15 @@ export default class DiscordClient {
     private static readonly DELAY_BEFORE_OFFLINE: number = 2.5 * 60 * 1000; // In Ms, prevent stream crash
 
     private readonly discordRequests: DiscordRequests;
-    private readonly discordData: Discord;
+    private readonly discordData: DiscordData;
 
-    private messageId: string = '';
-    private lastOnlineTime: number = 0;
+    private messageId = '';
+    private lastOnlineTime = 0;
 
-    public constructor(discordRequests: DiscordRequests, discordData: Discord) {
+    public constructor(discordRequests: DiscordRequests, discordData: DiscordData) {
         this.discordRequests = discordRequests;
         this.discordData = discordData;
+        this.messageId = MessageIdCache.getInstance().get(discordData.discordChannelId, discordData.twitchChannelName);
     }
 
     public async tick() {
@@ -79,7 +80,7 @@ export default class DiscordClient {
 
         if (lastOnlineDateWithDelay < new Date()) {
             await this.sendOfflineMessage(liveModel);
-            this.messageId = '';
+            this.setMessageId('');
         }
     }
 
@@ -111,7 +112,7 @@ export default class DiscordClient {
         try {
             if (!this.messageId) {
                 const jsonResponse = await this.discordRequests.createMessage(this.discordData.discordChannelId, body);
-                this.messageId = jsonResponse.id;
+                this.setMessageId(jsonResponse.id);
             } else {
                 await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, body);
             }
@@ -190,5 +191,10 @@ export default class DiscordClient {
 
     private formatDate(date: Date): string {
         return dayjs(date).fromNow();
+    }
+
+    private setMessageId(messageId: string) {
+        this.messageId = messageId;
+        MessageIdCache.getInstance().set(this.discordData.discordChannelId, this.discordData.twitchChannelName, messageId);
     }
 }
