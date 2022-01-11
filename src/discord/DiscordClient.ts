@@ -69,14 +69,16 @@ export default class DiscordClient {
 
     private readonly discordRequests: DiscordRequests;
     private readonly discordData: DiscordData;
+    private readonly checkIntervalMs: number;
 
     private eventId = '';
     private messageId = '';
     private lastOnlineTime = 0;
 
-    public constructor(discordRequests: DiscordRequests, discordData: DiscordData) {
+    public constructor(discordRequests: DiscordRequests, discordData: DiscordData, checkIntervalMs: number) {
         this.discordRequests = discordRequests;
         this.discordData = discordData;
+        this.checkIntervalMs = checkIntervalMs;
 
         const idsCache = DiscordIdsCache.getInstance().get(discordData.discordChannelId, discordData.twitchChannelName);
         this.eventId = idsCache.eventId;
@@ -100,7 +102,7 @@ export default class DiscordClient {
         if (lastOnlineDateWithDelay < new Date()) {
             await Promise.all([
                 this.sendOfflineMessage(liveModel),
-                this.offlineEvent(liveModel)
+                this.offlineEvent()
             ]);
 
             this.setMessageId('');
@@ -117,8 +119,21 @@ export default class DiscordClient {
     }
 
     private async onlineEvent(liveModel: LiveModel) {
+        const eventPrivacyLevel = 2; // GUILD_ONLY
+        const eventType = 3; // EXTERNAL
+
         try {
-            const eventItem = this.getEventItem(liveModel);
+            const eventItem: EventBody = {
+                channel_id: null,
+                name: `${liveModel.userName} est en live`,
+                entity_metadata: {
+                    location: `https://twitch.tv/${liveModel.userName}`
+                },
+                scheduled_end_time: this.getFakedEventEndDate(),
+                description: `:information_source: **${liveModel.streamTitle}**\n\n:video_game: **${liveModel.gameName}**`,
+                privacy_level: eventPrivacyLevel,
+                entity_type: eventType
+            };
 
             if (!this.eventId) {
                 eventItem.scheduled_start_time = this.getSoonDate();
@@ -131,21 +146,18 @@ export default class DiscordClient {
                 }
             }
         } catch (err) {
-            Logger.error(`[DiscordClients::onlineEvent] ${this.discordData.twitchChannelName} error:\n${err}`);
+            Logger.error(`[DiscordClients::onlineEvent] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
         }
     }
 
-    private async offlineEvent(liveModel: LiveModel) {
+    private async offlineEvent() {
         if (!this.eventId) return;
 
-        const eventItem = this.getEventItem(liveModel);
-        eventItem.scheduled_end_time = this.getSoonDate();
-
         try {
-            await this.discordRequests.editEvent(this.discordData.discordGuildId, this.eventId, eventItem);
+            await this.discordRequests.deleteEvent(this.discordData.discordGuildId, this.eventId);
             this.setEventId('');
         } catch (err) {
-            Logger.error(`[DiscordClients::offlineEvent] ${this.discordData.twitchChannelName} error:\n${err}`);
+            Logger.error(`[DiscordClients::offlineEvent] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
         }
     }
 
@@ -161,23 +173,11 @@ export default class DiscordClient {
      * End date is required in the Discord API
      */
     private getFakedEventEndDate(): Date {
-        return dayjs().add(5, 'minute').toDate();
-    }
-
-    private getEventItem(liveModel: LiveModel): EventBody {
-        const eventPrivacyLevel = 2; // GUILD_ONLY
-        const eventType = 3; // EXTERNAL
-        return {
-            channel_id: null,
-            name: `${liveModel.userName} est en live`,
-            entity_metadata: {
-                location: `https://twitch.tv/${liveModel.userName}`
-            },
-            scheduled_end_time: this.getFakedEventEndDate(),
-            description: `:information_source: **${liveModel.streamTitle}**\n\n:video_game: **${liveModel.gameName}**`,
-            privacy_level: eventPrivacyLevel,
-            entity_type: eventType
-        };
+        const minTimeMin = 1;
+        const bonusTime = Math.max(this.checkIntervalMs * 10, minTimeMin * 60 * 1000)
+        return dayjs()
+            .add(bonusTime, 'millisecond')
+            .toDate();
     }
 
     private async sendOnlineMessage(liveModel: LiveModel) {
@@ -201,7 +201,7 @@ export default class DiscordClient {
                 }
             }
         } catch (err) {
-            Logger.error(`[DiscordClients::sendOnlineMessage] ${this.discordData.twitchChannelName} error:\n${err}`);
+            Logger.error(`[DiscordClients::sendOnlineMessage] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
         }
     }
 
@@ -215,7 +215,7 @@ export default class DiscordClient {
         try {
             await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, body);
         } catch (err) {
-            Logger.error(`[DiscordClients::sendOfflineMessage] ${this.discordData.twitchChannelName} error:\n${err}`);
+            Logger.error(`[DiscordClients::sendOfflineMessage] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
         }
     }
 

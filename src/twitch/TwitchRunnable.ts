@@ -42,7 +42,7 @@ export default class TwitchRunnable {
 
             liveModel.isOnline = false;
         } catch (err) {
-            Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err}`);
+            Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err.stack}`);
         }
     }
 }

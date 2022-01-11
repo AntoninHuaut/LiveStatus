@@ -50,6 +50,6 @@ export default class GlobalRunnable {
 
     private createDiscordClients(discordConfig: DiscordConfig) {
         const discordRequests: DiscordRequests = new DiscordRequests(discordConfig);
-        discordConfig.discords.forEach((discord: DiscordData) => this.discordClients.push(new DiscordClient(discordRequests, discord)));
+        discordConfig.discords.forEach((discord: DiscordData) => this.discordClients.push(new DiscordClient(discordRequests, discord, this.checkIntervalMs)));
     }
 }

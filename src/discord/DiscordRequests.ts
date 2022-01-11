@@ -27,7 +27,7 @@ export default class DiscordRequests {
     }
 
     public async deleteEvent(guildId: string, eventId: string) {
-        return await this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.DELETE).then(res => res.json());
+        return await this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.DELETE);
     }
 
     private async fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: any) {
