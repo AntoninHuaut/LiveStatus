@@ -23,6 +23,7 @@ export interface LoggerConfig {
 
 export interface Config {
     logger: LoggerConfig;
+    i18n: string;
     twitch: TwitchConfig;
     discord: DiscordConfig;
 }

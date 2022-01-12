@@ -1,15 +1,10 @@
-import dayjs from "https://cdn.skypack.dev/dayjs@v1";
-import relativeTime from "https://cdn.skypack.dev/dayjs@v1/plugin/relativeTime";
-import fr from "https://cdn.skypack.dev/dayjs@v1/locale/fr";
 import LiveModel from "../model/LiveModel.ts";
 import { DiscordData } from "../model/Config.ts";
-import TwitchCache from "../twitch/TwitchCache.ts";
 import DiscordRequests from "./DiscordRequests.ts";
 import Logger from "../utils/Logger.ts";
+import I18nManager from "../utils/I18nManager.ts";
 
-dayjs.extend(relativeTime);
-dayjs.locale(fr);
-
+import TwitchCache from "../twitch/TwitchCache.ts";
 import { DiscordIdsCache } from "./DiscordIdsCache.ts";
 
 interface MessageImage {
@@ -121,16 +116,17 @@ export default class DiscordClient {
     private async onlineEvent(liveModel: LiveModel) {
         const eventPrivacyLevel = 2; // GUILD_ONLY
         const eventType = 3; // EXTERNAL
+        const i18nOptions = this.getI18nOptions(liveModel);
 
         try {
             const eventItem: EventBody = {
                 channel_id: null,
-                name: `${liveModel.userName} est en live`,
+                name: I18nManager.getInstance().get('discord.event.title', i18nOptions),
                 entity_metadata: {
                     location: `https://twitch.tv/${liveModel.userName}`
                 },
                 scheduled_end_time: this.getFakedEventEndDate(),
-                description: `:information_source: **${liveModel.streamTitle}**\n\n:video_game: **${liveModel.gameName}**`,
+                description: I18nManager.getInstance().get('discord.event.description', i18nOptions),
                 privacy_level: eventPrivacyLevel,
                 entity_type: eventType
             };
@@ -166,7 +162,7 @@ export default class DiscordClient {
     * Delay to manage time synchronization problems
     */
     private getSoonDate(): Date {
-        return dayjs().add(10, 'second').toDate();
+        return I18nManager.getInstance().dayjs().add(10, 'second').toDate();
     }
 
     /**
@@ -175,7 +171,7 @@ export default class DiscordClient {
     private getFakedEventEndDate(): Date {
         const minTimeMin = 1;
         const bonusTime = Math.max(this.checkIntervalMs * 10, minTimeMin * 60 * 1000)
-        return dayjs()
+        return I18nManager.getInstance().dayjs()
             .add(bonusTime, 'millisecond')
             .toDate();
     }
@@ -220,9 +216,10 @@ export default class DiscordClient {
     }
 
     private getOfflineEmbed(liveModel: LiveModel): MessageEmbed {
+        const i18nOptions = this.getI18nOptions(liveModel);
         return this.cleanEmptyFieldsInEmbed({
-            title: `:white_circle: ${liveModel.userName} était en live sur Twitch`,
-            description: `**Le live est terminé**`,
+            title: I18nManager.getInstance().get('discord.embed.offline.title', i18nOptions),
+            description: I18nManager.getInstance().get('discord.embed.offline.description', i18nOptions),
             url: `https://twitch.tv/${liveModel.userName}`,
             type: "rich",
             color: DiscordClient.COLOR_OFFLINE,
@@ -231,24 +228,15 @@ export default class DiscordClient {
                 height: LiveModel.GAME_THUMBNAIL_HEIGHT,
                 width: LiveModel.GAME_THUMBNAIL_WIDTH
             },
-            fields: [
-                {
-                    name: "Titre",
-                    value: liveModel.streamTitle,
-                    inline: false
-                },
-                {
-                    name: "Jeu",
-                    value: liveModel.gameName,
-                    inline: true
-                }
-            ]
+            fields: I18nManager.getInstance().get('discord.embed.offline.fields', i18nOptions)
         });
     }
 
     private getOnlineEmbed(liveModel: LiveModel): MessageEmbed {
+        const i18nOptions = this.getI18nOptions(liveModel);
         return this.cleanEmptyFieldsInEmbed({
-            title: `:red_circle: ${liveModel.userName} est en live sur Twitch !`,
+            title: I18nManager.getInstance().get('discord.embed.online.title', i18nOptions),
+            description: I18nManager.getInstance().get('discord.embed.online.description', i18nOptions),
             url: `https://twitch.tv/${liveModel.userName}`,
             type: "rich",
             color: DiscordClient.COLOR_ONLINE,
@@ -262,28 +250,7 @@ export default class DiscordClient {
                 height: LiveModel.GAME_THUMBNAIL_HEIGHT,
                 width: LiveModel.GAME_THUMBNAIL_WIDTH
             },
-            fields: [
-                {
-                    name: "Titre",
-                    value: liveModel.streamTitle,
-                    inline: false
-                },
-                {
-                    name: "Jeu",
-                    value: liveModel.gameName,
-                    inline: false
-                },
-                {
-                    name: "Statut",
-                    value: `En live avec ${liveModel.viewerCount} viewers`,
-                    inline: true
-                },
-                {
-                    name: "Depuis",
-                    value: this.formatDate(liveModel.startedAt),
-                    inline: true
-                }
-            ]
+            fields: I18nManager.getInstance().get('discord.embed.online.fields', i18nOptions)
         });
     }
 
@@ -299,7 +266,17 @@ export default class DiscordClient {
     }
 
     private formatDate(date: Date): string {
-        return dayjs(date).fromNow();
+        return I18nManager.getInstance().dayjs(date).fromNow();
+    }
+
+    private getI18nOptions(liveModel: LiveModel) {
+        return {
+            '%streamer%': liveModel.userName,
+            '%game%': liveModel.gameName,
+            '%title%': liveModel.streamTitle,
+            '%startDate%': this.formatDate(liveModel.startedAt),
+            '%viewer%': liveModel.viewerCount
+        }
     }
 
     private setMessageId(messageId: string) {

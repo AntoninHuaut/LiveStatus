@@ -1,8 +1,9 @@
 export default {
     logger: {
         debugLevel: false,
-        logFile: "app.log" // Null to disable
+        logFile: "app.log" // Empty to disable
     },
+    i18n: "en",
     twitch: {
         clientId: "<Application Client Id>",
         clientSecret: "<Application Client Secret>",
@@ -13,7 +14,7 @@ export default {
         discords: [{
             discordGuildId: "<guildId>",
             discordChannelId: "<channelId>",
-            discordRoleMentionId: "<roleId> (optional)",
+            discordRoleMentionId: "<roleId>", // Empty to disable
             twitchChannelName: "<twitchUserName>"
         }]
     }

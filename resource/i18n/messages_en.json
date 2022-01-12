@@ -1,0 +1,52 @@
+{
+    "discord": {
+        "event": {
+            "title": "%streamer% is live",
+            "description": ":information_source: **%title%**\n\n:video_game: **%game%**"
+        },
+        "embed": {
+            "online": {
+                "title": ":red_circle: %streamer% is live on Twitch!",
+                "description": "",
+                "fields": [
+                    {
+                        "name": "Title",
+                        "value": "%title%",
+                        "inline": false
+                    },
+                    {
+                        "name": "Game",
+                        "value": "%game%",
+                        "inline": false
+                    },
+                    {
+                        "name": "Status",
+                        "value": "Live with %viewer% viewers",
+                        "inline": true
+                    },
+                    {
+                        "name": "Since",
+                        "value": "%startDate%",
+                        "inline": true
+                    }
+                ]
+            },
+            "offline": {
+                "title": ":white_circle: %streamer% was live on Twitch",
+                "description": "**The live is over**",
+                "fields": [
+                    {
+                        "name": "Title",
+                        "value": "%title%",
+                        "inline": false
+                    },
+                    {
+                        "name": "Game",
+                        "value": "%game%",
+                        "inline": true
+                    }
+                ]
+            }
+        }
+    }
+}
