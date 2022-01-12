@@ -7,6 +7,7 @@ export default {
     discordConfig: {
         discordToken: "<discord bot token>",
         discords: [{
+            discordGuildId: "<guildId>",
             discordChannelId: "<channelId>",
             discordRoleMentionId: "<roleId> (optional)",
             twitchChannelsName: "<twitchUserName>"
