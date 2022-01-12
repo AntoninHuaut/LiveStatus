@@ -10,7 +10,7 @@ enum LogLevel {
 export default class Logger {
 
     private static log(finalMsg: string) {
-        if (config.logger.logFile == null) return;
+        if (!config.logger.logFile?.trim()) return;
 
         Deno.writeTextFileSync(config.logger.logFile, finalMsg + "\n", { append: true });
     }

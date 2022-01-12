@@ -18,7 +18,7 @@ export interface DiscordConfig {
 
 export interface LoggerConfig {
     debugLevel: boolean;
-    logFile: string | null;
+    logFile: string;
 }
 
 export interface Config {
