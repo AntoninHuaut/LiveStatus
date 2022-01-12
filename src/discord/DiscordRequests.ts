@@ -10,31 +10,31 @@ export default class DiscordRequests {
         this.discordConfig = discordConfig;
     }
 
-    public async createMessage(channelId: string, body: MessageBody) {
-        return await this.fetchDiscord(`channels/${channelId}/messages`, HttpMethod.POST, body).then(res => res.json());
+    public createMessage(channelId: string, body: MessageBody) {
+        return this.fetchDiscord(`channels/${channelId}/messages`, HttpMethod.POST, body).then(res => res.json());
     }
 
-    public async editMessage(channelId: string, messageId: string, body: MessageBody) {
-        return await this.fetchDiscord(`channels/${channelId}/messages/${messageId}`, HttpMethod.PATCH, body).then(res => res.json());
+    public editMessage(channelId: string, messageId: string, body: MessageBody) {
+        return this.fetchDiscord(`channels/${channelId}/messages/${messageId}`, HttpMethod.PATCH, body).then(res => res.json());
     }
 
-    public async createEvent(guildId: string, body: EventBody) {
-        return await this.fetchDiscord(`guilds/${guildId}/scheduled-events`, HttpMethod.POST, body).then(res => res.json());
+    public createEvent(guildId: string, body: EventBody) {
+        return this.fetchDiscord(`guilds/${guildId}/scheduled-events`, HttpMethod.POST, body).then(res => res.json());
     }
 
-    public async editEvent(guildId: string, eventId: string, body: EventBody) {
-        return await this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.PATCH, body).then(res => res.json());
+    public editEvent(guildId: string, eventId: string, body: EventBody) {
+        return this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.PATCH, body).then(res => res.json());
     }
 
-    public async deleteEvent(guildId: string, eventId: string) {
-        return await this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.DELETE);
+    public deleteEvent(guildId: string, eventId: string) {
+        return this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.DELETE);
     }
 
-    private async fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: any) {
+    private fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: any) {
         const headers: Headers = new Headers({
             'Authorization': 'Bot ' + this.discordConfig.discordToken,
             'Content-Type': 'application/json'
         });
-        return await fetchURL(`https://discord.com/api/${apiPath}`, httpMethod, headers, body);
+        return fetchURL(`https://discord.com/api/${apiPath}`, httpMethod, headers, body);
     }
 }

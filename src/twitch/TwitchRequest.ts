@@ -13,9 +13,9 @@ export default class TwitchRequest {
         this.twitchConfig = twitchConfig;
     }
 
-    public async getStreams(twitchUserName: string) {
+    public getStreams(twitchUserName: string) {
         const queryParams: string = new URLSearchParams({ user_login: twitchUserName }).toString();
-        return await this.fetchHelix(`streams?` + queryParams).then(res => res.json());
+        return this.fetchHelix(`streams?` + queryParams).then(res => res.json());
     }
 
     private async getAccessToken() {
@@ -50,6 +50,6 @@ export default class TwitchRequest {
             'Authorization': 'Bearer ' + validAccessToken,
             'client-id': this.twitchConfig.clientId,
         });
-        return await fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers, null);
+        return fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers, null);
     }
 }

@@ -9,6 +9,7 @@ export class DiscordIdsCache {
     private static CACHE_VERSION = "v2";
 
     private constructor() {
+        // Singleton
     }
 
     public get(discordChannelId: string, twitchUserName: string): DiscordIdsCacheFormat {

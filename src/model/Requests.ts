@@ -11,7 +11,7 @@ export enum HttpMethod {
     DELETE = "DELETE"
 }
 
-export async function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body?: any) {
+export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body?: any) {
     const params: FetchParam = {
         method: httpMethod,
         headers: headers
@@ -19,5 +19,5 @@ export async function fetchURL(url: string, httpMethod: HttpMethod, headers: Hea
     if (body != undefined && body != null) {
         params.body = JSON.stringify(body);
     }
-    return await fetch(url, params);
+    return fetch(url, params);
 }

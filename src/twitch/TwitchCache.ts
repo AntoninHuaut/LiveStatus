@@ -6,6 +6,7 @@ export default class TwitchCache {
     private readonly lives: Map<string, LiveModel> = new Map();
 
     private constructor() {
+        // Singleton
     }
 
     public get(userName: string): LiveModel {
