@@ -32,7 +32,7 @@ export default class DiscordRequests {
 
     private fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: any) {
         const headers: Headers = new Headers({
-            'Authorization': 'Bot ' + this.discordConfig.discordToken,
+            'Authorization': 'Bot ' + this.discordConfig.botToken,
             'Content-Type': 'application/json'
         });
         return fetchURL(`https://discord.com/api/${apiPath}`, httpMethod, headers, body);

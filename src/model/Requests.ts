@@ -16,7 +16,7 @@ export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, 
         method: httpMethod,
         headers: headers
     }
-    if (body != undefined && body != null) {
+    if (body != null) {
         params.body = JSON.stringify(body);
     }
     return fetch(url, params);

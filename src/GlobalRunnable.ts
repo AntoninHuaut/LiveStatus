@@ -17,10 +17,10 @@ export default class GlobalRunnable {
     public constructor(config: Config) {
         this.discordClients = [];
         this.twitchRuns = [];
-        this.checkIntervalMs = Math.max(config.twitchConfig.checkIntervalMs, GlobalRunnable.MIN_CHECK_INTERVAL);
+        this.checkIntervalMs = Math.max(config.twitch.checkIntervalMs, GlobalRunnable.MIN_CHECK_INTERVAL);
 
         this.createTwitchRunnable(config);
-        this.createDiscordClients(config.discordConfig);
+        this.createDiscordClients(config.discord);
 
         this.tick();
     }
@@ -40,10 +40,10 @@ export default class GlobalRunnable {
     }
 
     private createTwitchRunnable(config: Config) {
-        const twitchRequest: TwitchRequest = new TwitchRequest(config.twitchConfig);
+        const twitchRequest: TwitchRequest = new TwitchRequest(config.twitch);
 
         const twitchChannelsName: Set<string> = new Set();
-        config.discordConfig.discords.map((discord: DiscordData) => twitchChannelsName.add(discord.twitchChannelName));
+        config.discord.discords.map((discord: DiscordData) => twitchChannelsName.add(discord.twitchChannelName));
 
         twitchChannelsName.forEach((twitchUsername: string) => this.twitchRuns.push(new TwitchRunnable(twitchRequest, twitchUsername)));
     }

@@ -12,11 +12,17 @@ export interface DiscordData {
 }
 
 export interface DiscordConfig {
-    discordToken: string;
+    botToken: string;
     discords: DiscordData[];
 }
 
+export interface LoggerConfig {
+    debugLevel: boolean;
+    logFile: string | null;
+}
+
 export interface Config {
-    twitchConfig: TwitchConfig;
-    discordConfig: DiscordConfig;
+    logger: LoggerConfig;
+    twitch: TwitchConfig;
+    discord: DiscordConfig;
 }

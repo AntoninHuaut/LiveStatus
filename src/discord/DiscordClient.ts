@@ -1,6 +1,6 @@
-import dayjs from "https://cdn.skypack.dev/dayjs";
-import relativeTime from "https://cdn.skypack.dev/dayjs/plugin/relativeTime";
-import fr from "https://cdn.skypack.dev/dayjs/locale/fr";
+import dayjs from "https://cdn.skypack.dev/dayjs@v1";
+import relativeTime from "https://cdn.skypack.dev/dayjs@v1/plugin/relativeTime";
+import fr from "https://cdn.skypack.dev/dayjs@v1/locale/fr";
 import LiveModel from "../model/LiveModel.ts";
 import { DiscordData } from "../model/Config.ts";
 import TwitchCache from "../twitch/TwitchCache.ts";
