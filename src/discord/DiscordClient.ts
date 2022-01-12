@@ -241,7 +241,7 @@ export default class DiscordClient {
             type: "rich",
             color: DiscordClient.COLOR_ONLINE,
             image: {
-                url: liveModel.streamImageUrl,
+                url: `${liveModel.streamImageUrl}?noCache=${new Date().getTime()}`,
                 height: LiveModel.STREAM_IMAGE_HEIGHT,
                 width: LiveModel.STREAM_IMAGE_WIDTH
             },
