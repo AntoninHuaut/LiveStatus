@@ -11,7 +11,7 @@ export enum HttpMethod {
     DELETE = "DELETE"
 }
 
-export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body?: any) {
+export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body?: Record<string, any>) {
     const params: FetchParam = {
         method: httpMethod,
         headers: headers

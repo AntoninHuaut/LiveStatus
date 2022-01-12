@@ -3,10 +3,12 @@ import Logger from "./Logger.ts"
 import dayjs from "https://cdn.skypack.dev/dayjs@v1";
 import relativeTime from "https://cdn.skypack.dev/dayjs@v1/plugin/relativeTime";
 
+type OptionsType = Record<string, string | number | boolean>;
+
 export default class I18nManager {
 
     private static instance: I18nManager;
-    private messages: any;
+    private messages: Record<string, any> = {};
 
     private constructor() {
         // Singleton
@@ -39,7 +41,7 @@ export default class I18nManager {
         dayjs.locale(dayjsLang.default);
     }
 
-    public get(key: string, options: any) {
+    public get(key: string, options: OptionsType) {
         let i18nKey = this.messages
         try {
             const keySplit = key.split('.');
@@ -54,7 +56,7 @@ export default class I18nManager {
         return this.translate(i18nKey, options);
     }
 
-    private translate(i18nTrans: any, options: any) {
+    private translate(i18nTrans: any, options: OptionsType) {
         if (Array.isArray(i18nTrans)) {
             return i18nTrans.map(item => {
                 Object.keys(item).forEach(subItem => item[subItem] = this.translate(item[subItem], options));
@@ -65,7 +67,7 @@ export default class I18nManager {
 
             if (options != null) {
                 for (const optEntry of Object.entries(options)) {
-                    i18nTrans = i18nTrans.replaceAll(optEntry[0], optEntry[1]);
+                    i18nTrans = i18nTrans.replaceAll(optEntry[0], optEntry[1].toString());
                 }
             }
 

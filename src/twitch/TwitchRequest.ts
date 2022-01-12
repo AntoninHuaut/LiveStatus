@@ -32,7 +32,7 @@ export default class TwitchRequest {
             grant_type: 'client_credentials'
         }).toString();
 
-        const res: Response = await fetchURL(`https://id.twitch.tv/oauth2/token?` + queryParams, HttpMethod.POST, new Headers(), null);
+        const res: Response = await fetchURL(`https://id.twitch.tv/oauth2/token?` + queryParams, HttpMethod.POST, new Headers());
         if (res.status != 200) {
             const body = await res.text();
             Logger.error(`Unable to generate accessToken: \n${body}`);
@@ -50,6 +50,6 @@ export default class TwitchRequest {
             'Authorization': 'Bearer ' + validAccessToken,
             'client-id': this.twitchConfig.clientId,
         });
-        return fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers, null);
+        return fetchURL(`https://api.twitch.tv/helix/${apiPath}`, HttpMethod.GET, headers);
     }
 }

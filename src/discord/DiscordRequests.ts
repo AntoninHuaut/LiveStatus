@@ -30,7 +30,7 @@ export default class DiscordRequests {
         return this.fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.DELETE);
     }
 
-    private fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: any) {
+    private fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: Record<string, any>) {
         const headers: Headers = new Headers({
             'Authorization': 'Bot ' + this.discordConfig.botToken,
             'Content-Type': 'application/json'
