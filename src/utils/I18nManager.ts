@@ -53,6 +53,10 @@ export default class I18nManager {
             return;
         }
 
+        if (typeof i18nKey === 'object') {
+            i18nKey = JSON.parse(JSON.stringify(i18nKey)); // Clone object
+        }
+
         return this.translate(i18nKey, options);
     }
 
