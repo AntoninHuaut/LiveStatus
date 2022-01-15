@@ -8,6 +8,7 @@
             "online": {
                 "title": ":red_circle: %streamer% is live on Twitch!",
                 "description": "",
+                "linkBtn": "Go to the live",
                 "fields": [
                     {
                         "name": "Title",
@@ -34,6 +35,7 @@
             "offline": {
                 "title": ":white_circle: %streamer% was live on Twitch",
                 "description": "**The live is over**",
+                "linkBtn": "Go to the channel",
                 "fields": [
                     {
                         "name": "Title",

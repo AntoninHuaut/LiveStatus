@@ -88,4 +88,8 @@ export default class LiveModel {
         const height = LiveModel.GAME_THUMBNAIL_HEIGHT;
         this._gameImageUrl = new URL(`${baseUrl}/${gameId}-${width}x${height}.jpg`).href;
     }
+
+    get liveUrl(): string {
+        return `https://twitch.tv/${this.userName}`
+    }
 }

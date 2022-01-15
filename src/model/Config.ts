@@ -4,11 +4,31 @@ export interface TwitchConfig {
     checkIntervalMs: number;
 }
 
+export interface DDataMessageLinkBtnConfig {
+    offline: boolean;
+    online: boolean;
+}
+
+export interface DDataEventConfig {
+    active: boolean;
+}
+
+export interface DDataMessageConfig {
+    active: boolean;
+    linkBtn: DDataMessageLinkBtnConfig;
+}
+
+export interface DiscordDataConfig {
+    event: DDataEventConfig;
+    message: DDataMessageConfig
+}
+
 export interface DiscordData {
     discordGuildId: string;
     discordChannelId: string;
     discordRoleMentionId: string;
     twitchChannelName: string;
+    config: DiscordDataConfig;
 }
 
 export interface DiscordConfig {

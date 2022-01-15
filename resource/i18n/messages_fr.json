@@ -8,6 +8,7 @@
             "online": {
                 "title": ":red_circle: %streamer% est en live sur Twitch !",
                 "description": "",
+                "linkBtn": "Accéder au live",
                 "fields": [
                     {
                         "name": "Titre",
@@ -34,6 +35,7 @@
             "offline": {
                 "title": ":white_circle: %streamer% était en live sur Twitch",
                 "description": "**Le live est terminé**",
+                "linkBtn": "Accéder à la chaîne",
                 "fields": [
                     {
                         "name": "Titre",

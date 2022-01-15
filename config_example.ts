@@ -15,7 +15,19 @@ export default {
             discordGuildId: "<guildId>",
             discordChannelId: "<channelId>",
             discordRoleMentionId: "<roleId>", // Empty to disable
-            twitchChannelName: "<twitchUserName>"
+            twitchChannelName: "<twitchUserName>",
+            config: {
+                event: {
+                    active: true
+                },
+                message: {
+                    active: true,
+                    linkBtn: {
+                        online: true,
+                        offline: true
+                    }
+                }
+            }
         }]
     }
 }

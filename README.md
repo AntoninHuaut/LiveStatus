@@ -59,7 +59,19 @@ Open the config.ts file with your favorite text editor
             discordGuildId: "<guildId>",
             discordChannelId: "<channelId>",
             discordRoleMentionId: "<roleId>", // Role to tag when the stream is live, empty to disable
-            twitchChannelName: "<twitchUserName>"
+            twitchChannelName: "<twitchUserName>",
+            config: {
+                event: {
+                    active: true
+                },
+                message: {
+                    active: true,
+                    linkBtn: {
+                        online: true,
+                        offline: true
+                    }
+                }
+            }
         }]
     }
 }
