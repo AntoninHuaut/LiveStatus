@@ -19,6 +19,7 @@ export default class LiveModel {
 
     private _streamImageUrl = '';
     private _gameImageUrl = '';
+    private _streamImageUrlBase64 = '';
 
     public constructor(userName: string) {
         this._userName = userName;
@@ -67,7 +68,7 @@ export default class LiveModel {
     set startedAt(value: Date) {
         this._startedAt = value;
     }
-
+ 
     get streamImageUrl(): string {
         return this._streamImageUrl;
     }
@@ -76,6 +77,14 @@ export default class LiveModel {
         this._streamImageUrl = streamImageUrl
             .replace('{width}', String(LiveModel.STREAM_IMAGE_WIDTH))
             .replace('{height}', String(LiveModel.STREAM_IMAGE_HEIGHT));
+    }
+
+    set streamImageUrlBase64(streamImageUrlBase64: string) {
+        this._streamImageUrlBase64 = streamImageUrlBase64;
+    }
+
+    get streamImageUrlBase64(): string {
+        return this._streamImageUrlBase64;
     }
 
     get gameImageUrl(): string {

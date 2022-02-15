@@ -1,3 +1,4 @@
+import {fetchbase64} from "../deps.ts";
 import Logger from "../utils/Logger.ts";
 import TwitchRequest from "./TwitchRequest.ts";
 import LiveModel from "../model/LiveModel.ts";
@@ -36,6 +37,12 @@ export default class TwitchRunnable {
                     liveModel.startedAt = new Date(dataLive.started_at);
                     liveModel.streamImageUrl = dataLive.thumbnail_url;
                     liveModel.gameImageUrl = dataLive.game_name;
+                    try {
+                        liveModel.streamImageUrlBase64 = await fetchbase64.fetchRemote(liveModel.streamImageUrl);
+                    } catch (err) {
+                        Logger.error(`[LiveModel::streamImageUrl] Error parsing streamImage url: "${liveModel.streamImageUrl}" error:\n${err.stack}`)
+                    }
+
                     return;
                 }
             }

@@ -1,11 +1,11 @@
 import LiveModel from "../model/LiveModel.ts";
-import { DiscordData } from "../model/Config.ts";
+import {DiscordData} from "../model/Config.ts";
 import DiscordRequests from "./DiscordRequests.ts";
 import Logger from "../utils/Logger.ts";
 import I18nManager from "../utils/I18nManager.ts";
 
 import TwitchCache from "../twitch/TwitchCache.ts";
-import { DiscordIdsCache } from "./DiscordIdsCache.ts";
+import {DiscordIdsCache} from "./DiscordIdsCache.ts";
 
 interface MessageImage {
     url: string;
@@ -69,6 +69,7 @@ export interface EventBody {
     description: string;
     privacy_level: number;
     entity_type: number;
+    image: string;
 }
 
 export default class DiscordClient {
@@ -146,7 +147,8 @@ export default class DiscordClient {
                 scheduled_end_time: this.getFakedEventEndDate(),
                 description: I18nManager.getInstance().get('discord.event.description', i18nOptions),
                 privacy_level: eventPrivacyLevel,
-                entity_type: eventType
+                entity_type: eventType,
+                image: liveModel.streamImageUrlBase64
             };
 
             if (!this.eventId) {
@@ -176,9 +178,9 @@ export default class DiscordClient {
     }
 
     /**
-    * Date cannot be schedule in the past
-    * Delay to manage time synchronization problems
-    */
+     * Date cannot be schedule in the past
+     * Delay to manage time synchronization problems
+     */
     private getSoonDate(): Date {
         return I18nManager.getInstance().dayjs().add(10, 'second').toDate();
     }
@@ -328,6 +330,9 @@ export default class DiscordClient {
     }
 
     private setCache() {
-        DiscordIdsCache.getInstance().set(this.discordData.discordChannelId, this.discordData.twitchChannelName, { messageId: this.messageId, eventId: this.eventId });
+        DiscordIdsCache.getInstance().set(this.discordData.discordChannelId, this.discordData.twitchChannelName, {
+            messageId: this.messageId,
+            eventId: this.eventId
+        });
     }
 }

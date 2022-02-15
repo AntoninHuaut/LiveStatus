@@ -1,4 +1,4 @@
-import * as Colors from "https://deno.land/std/fmt/colors.ts";
+import {Colors} from "../deps.ts";
 import config from "../../config.ts";
 
 enum LogLevel {
@@ -12,14 +12,14 @@ export default class Logger {
     private static log(finalMsg: string) {
         if (!config.logger.logFile?.trim()) return;
 
-        Deno.writeTextFileSync(config.logger.logFile, finalMsg + "\n", { append: true });
+        Deno.writeTextFileSync(config.logger.logFile, finalMsg + "\n", {append: true});
     }
 
     public static debug(msg: string) {
         if (!config.logger.debugLevel) return;
 
         const toLog = Logger.format(LogLevel.DEBUG, msg);
-        console.info(Colors.gray(toLog));
+        console.debug(Colors.gray(toLog));
         Logger.log(toLog);
     }
 
