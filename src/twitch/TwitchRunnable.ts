@@ -1,4 +1,3 @@
-import {fetchbase64} from "../deps.ts";
 import Logger from "../utils/Logger.ts";
 import TwitchRequest from "./TwitchRequest.ts";
 import LiveModel from "../model/LiveModel.ts";
@@ -38,7 +37,7 @@ export default class TwitchRunnable {
                     liveModel.streamImageUrl = dataLive.thumbnail_url;
                     liveModel.gameImageUrl = dataLive.game_name;
                     try {
-                        liveModel.streamImageUrlBase64 = await fetchbase64.fetchRemote(liveModel.streamImageUrl);
+                        liveModel.streamImageUrlBase64 = await this.fetchBlobImg(liveModel.streamImageUrl);
                     } catch (err) {
                         Logger.error(`[LiveModel::streamImageUrl] Error parsing streamImage url: "${liveModel.streamImageUrl}" error:\n${err.stack}`)
                     }
@@ -51,5 +50,21 @@ export default class TwitchRunnable {
         } catch (err) {
             Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err.stack}`);
         }
+    }
+
+    private fetchBlobImg(url: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            try {
+                fetch(url).then(response => response.blob()).then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        resolve(this.result as string)
+                    };
+                    reader.readAsDataURL(blob);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 }
