@@ -60,6 +60,7 @@ export default class TwitchRunnable {
                     reader.onload = function () {
                         resolve(this.result as string)
                     };
+                    reader.onerror = reject;
                     reader.readAsDataURL(blob);
                 });
             } catch (err) {
