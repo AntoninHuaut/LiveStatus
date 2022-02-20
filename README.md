@@ -54,7 +54,7 @@ Open the config.ts file with your favorite text editor
         // Add your bot on your server: https://discord.com/api/oauth2/authorize?client_id=<Insert your bot Application ID here>&permissions=8590445568&scope=bot 
         // Make sure your robot has the permissions to publish in the channel
         botToken: "<discord bot token>",
-        // List of discord, mMake sur your discord account is in developer mode to easily copy guildId/channelId/roleId (Settings -> Advanced -> Developer mode)
+        // List of discord, make sur your discord account is in developer mode to easily copy guildId/channelId/roleId (Settings -> Advanced -> Developer mode)
         discords: [{
             discordGuildId: "<guildId>",
             discordChannelId: "<channelId>",
@@ -78,12 +78,17 @@ Open the config.ts file with your favorite text editor
 ```
 
 ### Run the application
-
 ```console
 deno run --allow-net --allow-read=. --allow-write=. ./src/app.ts
 ```
+#### With Velociraptor
+> Note: you need the script runner [Velociraptor](https://velociraptor.run/)
+```console
+vr start
+```  
 
-> Note: you can run the application with pm2 if you use it
+#### With pm2
+> Note: you need the process manager [pm2](https://pm2.keymetrics.io/)
 
 ```console
 pm2 start ./src/app.ts --name LiveStatus --interpreter="deno" --interpreter-args="run --allow-net --allow-read=. --allow-write=."
