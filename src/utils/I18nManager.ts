@@ -1,7 +1,7 @@
 import config from "../../config.ts";
 import Logger from "./Logger.ts"
-import dayjs from "https://cdn.skypack.dev/dayjs@v1";
-import relativeTime from "https://cdn.skypack.dev/dayjs@v1/plugin/relativeTime";
+import dayjs from "https://cdn.skypack.dev/dayjs@v1.10.8";
+import relativeTime from "https://cdn.skypack.dev/dayjs@v1.10.8/plugin/relativeTime";
 
 type OptionsType = Record<string, string | number | boolean>;
 
@@ -30,14 +30,14 @@ export default class I18nManager {
     private async loadMessages(language: string) {
         Logger.info(`Loading messages for the locale: ${language}`);
         this.messages = (await import(`../../resource/i18n/messages_${language}.json`, {
-            assert: { type: "json" },
+            assert: {type: "json"},
         })).default;
     }
 
     private async loadDayjs(language: string) {
         Logger.info(`Loading dayjs for the locale: ${language}`);
         dayjs.extend(relativeTime);
-        const dayjsLang = await import(`https://cdn.skypack.dev/dayjs@v1/locale/${language}`);
+        const dayjsLang = await import(`https://cdn.skypack.dev/dayjs@v1.10.8/locale/${language}`);
         dayjs.locale(dayjsLang.default);
     }
 
