@@ -7,15 +7,6 @@ Built with [Deno](https://deno.land)
 
 ![Preview](https://i.imgur.com/lSUs1b9.png)
 
-## Requirements
-
-Install [Deno](https://deno.land/#installation) if you don't have it yet\
-Otherwise check that you are up to date with
-
-```console
-deno upgrade
-```
-
 ## Getting started
 
 ### Clone the repository
@@ -78,18 +69,28 @@ Open the config.ts file with your favorite text editor
 ```
 
 ### Run the application
+#### With Docker
 ```console
-deno run --allow-net --allow-read=. --allow-write=. ./src/app.ts
+docker compose up -d
 ```
-#### With Velociraptor
-> Note: you need the script runner [Velociraptor](https://velociraptor.run/)
-```console
-vr start
-```  
 
-#### With pm2
+#### Without Docker
+Install [Deno](https://deno.land/#installation) if you don't have it yet\
+Otherwise check that you are up to date with
+
+```console
+deno upgrade
+```
+
+Then start the application
+
+```console
+deno task start
+```
+
+##### With pm2
 > Note: you need the process manager [pm2](https://pm2.keymetrics.io/)
 
 ```console
-pm2 start ./src/app.ts --name LiveStatus --interpreter="deno" --interpreter-args="run --allow-net --allow-read=. --allow-write=."
+pm2 start ./src/app.ts --name LiveStatus --interpreter="deno" --interpreter-args="task start"
 ```

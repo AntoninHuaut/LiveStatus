@@ -1,3 +1,0 @@
-scripts:
-  start: "deno run --allow-net --allow-write --allow-read src/app.ts"
-  dev: "deno run --allow-net --allow-write --allow-read --watch src/app.ts"

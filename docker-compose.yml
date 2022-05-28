@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  livestatus:
+    restart: unless-stopped
+    build: .
+    volumes:
+      - ./resource:/app/resource
+      - ./config.ts:/app/config.ts
