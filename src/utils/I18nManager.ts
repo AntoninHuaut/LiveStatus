@@ -1,9 +1,7 @@
 import config from "../../config.ts";
 import Logger from "./Logger.ts";
-import dayjs from "https://cdn.skypack.dev/dayjs@v1.11.3";
-import relativeTime from "https://cdn.skypack.dev/dayjs@v1.11.3/plugin/relativeTime";
+import { dayjs, loadDayjsLocale } from "../deps.ts";
 
-export { dayjs };
 type OptionsType = Record<string, string | number | boolean>;
 
 export default class I18nManager {
@@ -15,32 +13,29 @@ export default class I18nManager {
   }
 
   public async load() {
-    let language = config.i18n;
+    let locale = config.i18n;
     try {
-      await this.loadMessages(language);
+      await this.loadMessages(locale);
     } catch (err) {
       Logger.error(`[I18nManager::load] ${err.stack}`);
-      language = "en";
+      locale = "en";
 
-      await this.loadMessages(language);
+      await this.loadMessages(locale);
     }
-    await this.loadDayjs(language);
+    await this.setDayjsLocale(locale);
   }
 
-  private async loadMessages(language: string) {
-    Logger.info(`Loading messages for the locale: ${language}`);
+  private async loadMessages(locale: string) {
+    Logger.info(`Loading messages for the locale: ${locale}`);
     this.messages =
-      (await import(`../../resource/i18n/messages_${language}.json`, {
+      (await import(`../../resource/i18n/messages_${locale}.json`, {
         assert: { type: "json" },
       })).default;
   }
 
-  private async loadDayjs(language: string) {
-    Logger.info(`Loading dayjs for the locale: ${language}`);
-    dayjs.extend(relativeTime);
-    const dayjsLang = await import(
-      `https://cdn.skypack.dev/dayjs@v1.10.8/locale/${language}`
-    );
+  private async setDayjsLocale(locale: string) {
+    Logger.info(`Loading dayjs for the locale: ${locale}`);
+    const dayjsLang = await loadDayjsLocale(locale);
     dayjs.locale(dayjsLang.default);
   }
 
@@ -82,10 +77,6 @@ export default class I18nManager {
 
       return i18nTrans;
     }
-  }
-
-  get dayjs() {
-    return dayjs;
   }
 
   public static getInstance() {

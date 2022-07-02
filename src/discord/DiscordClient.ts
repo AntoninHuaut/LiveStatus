@@ -1,76 +1,16 @@
+import { dayjs } from "../deps.ts";
+
 import LiveModel from "../model/LiveModel.ts";
 import { DiscordData } from "../model/Config.ts";
-import DiscordRequests from "./DiscordRequests.ts";
+
 import Logger from "../utils/Logger.ts";
 import I18nManager from "../utils/I18nManager.ts";
-
 import TwitchCache from "../twitch/TwitchCache.ts";
+
 import { DiscordIdsCache } from "./DiscordIdsCache.ts";
+import DiscordRequests from "./DiscordRequests.ts";
 
-interface MessageImage {
-  url: string;
-  height: number;
-  width: number;
-}
-
-interface MessageThumbnail {
-  url: string;
-  height: number;
-  width: number;
-}
-
-interface MessageField {
-  name: string;
-  value: string;
-  inline: boolean;
-}
-
-interface MessageEmbed {
-  title: string;
-  description?: string;
-  url: string;
-  type: string;
-  color: number;
-  image?: MessageImage;
-  thumbnail?: MessageThumbnail;
-  fields: MessageField[];
-}
-
-export interface MessageComponent {
-  type: number;
-}
-
-export interface MessageButton extends MessageComponent {
-  label: string;
-  style: number;
-  url: string;
-}
-
-export interface MessageActionRow extends MessageComponent {
-  components?: MessageButton[];
-}
-
-export interface MessageBody {
-  content?: string;
-  components?: MessageActionRow[];
-  embeds: MessageEmbed[];
-}
-
-interface EventMetadata {
-  location: string;
-}
-
-export interface EventBody {
-  channel_id: null;
-  name: string;
-  entity_metadata: EventMetadata;
-  scheduled_start_time?: Date;
-  scheduled_end_time: Date;
-  description: string;
-  privacy_level: number;
-  entity_type: number;
-  image: string;
-}
+import { EventBody, MessageBody, MessageEmbed } from "../model/DiscordModel.ts";
 
 export default class DiscordClient {
   private static readonly COLOR_OFFLINE = 9807270;
@@ -219,7 +159,7 @@ export default class DiscordClient {
    * Delay to manage time synchronization problems
    */
   private getSoonDate(): Date {
-    return I18nManager.getInstance().dayjs().add(10, "second").toDate();
+    return dayjs().add(10, "second").toDate();
   }
 
   /**
@@ -231,9 +171,7 @@ export default class DiscordClient {
       this.checkIntervalMs * 10,
       minTimeMin * 60 * 1000,
     );
-    return I18nManager.getInstance().dayjs()
-      .add(bonusTime, "millisecond")
-      .toDate();
+    return dayjs().add(bonusTime, "millisecond").toDate();
   }
 
   private async sendOnlineMessage(liveModel: LiveModel) {
@@ -387,7 +325,7 @@ export default class DiscordClient {
   }
 
   private formatDate(date: Date): string {
-    return I18nManager.getInstance().dayjs(date).fromNow();
+    return dayjs(date).fromNow();
   }
 
   private getI18nOptions(liveModel: LiveModel) {

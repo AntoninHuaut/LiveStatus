@@ -1,8 +1,4 @@
-export interface DiscordIdsCacheFormat {
-  messageId: string;
-  eventId: string;
-}
-
+import { DiscordIdsCacheModel } from "../model/DiscordModel.ts";
 export class DiscordIdsCache {
   private static instance: DiscordIdsCache;
   private static CACHE_VERSION = "v2";
@@ -14,7 +10,7 @@ export class DiscordIdsCache {
   public get(
     discordChannelId: string,
     twitchUserName: string,
-  ): DiscordIdsCacheFormat {
+  ): DiscordIdsCacheModel {
     const item = localStorage.getItem(
       this.getKey(discordChannelId, twitchUserName),
     );
@@ -24,7 +20,7 @@ export class DiscordIdsCache {
   public set(
     discordChannelId: string,
     twitchUserName: string,
-    idItem: DiscordIdsCacheFormat,
+    idItem: DiscordIdsCacheModel,
   ) {
     localStorage.setItem(
       this.getKey(discordChannelId, twitchUserName),

@@ -1,6 +1,6 @@
 import { DiscordConfig } from "../model/Config.ts";
 import { fetchURL, HttpMethod } from "../model/Requests.ts";
-import { EventBody, MessageBody } from "./DiscordClient.ts";
+import { EventBody, MessageBody } from "../model/DiscordModel.ts";
 
 export default class DiscordRequests {
   private readonly discordConfig: DiscordConfig;
