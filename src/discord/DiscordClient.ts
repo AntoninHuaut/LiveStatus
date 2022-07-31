@@ -15,7 +15,7 @@ import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
 export default class DiscordClient {
     private static readonly COLOR_OFFLINE = 9807270;
     private static readonly COLOR_ONLINE = 10181046;
-    private static readonly DELAY_BEFORE_OFFLINE: number = 2.5 * 60 * 1000; // In Ms, prevent stream crash
+    private static readonly DELAY_BEFORE_OFFLINE: number = 60 * 1000; // In Ms, prevent stream crash
 
     private readonly discordRequests: DiscordRequests;
     private readonly discordData: DiscordData;
