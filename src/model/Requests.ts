@@ -1,28 +1,23 @@
 interface FetchParam {
-  method: HttpMethod;
-  headers: Headers;
-  body?: string;
+    method: HttpMethod;
+    headers: Headers;
+    body?: string;
 }
 
 export enum HttpMethod {
-  GET = "GET",
-  POST = "POST",
-  PATCH = "PATCH",
-  DELETE = "DELETE",
+    GET = 'GET',
+    POST = 'POST',
+    PATCH = 'PATCH',
+    DELETE = 'DELETE',
 }
 
-export function fetchURL(
-  url: string,
-  httpMethod: HttpMethod,
-  headers: Headers,
-  body?: Record<string, any>,
-) {
-  const params: FetchParam = {
-    method: httpMethod,
-    headers: headers,
-  };
-  if (body != null) {
-    params.body = JSON.stringify(body);
-  }
-  return fetch(url, params);
+export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, body?: Record<string, any>) {
+    const params: FetchParam = {
+        method: httpMethod,
+        headers: headers,
+    };
+    if (body != null) {
+        params.body = JSON.stringify(body);
+    }
+    return fetch(url, params);
 }
