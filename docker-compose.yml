@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   livestatus:
     restart: unless-stopped
@@ -6,3 +5,4 @@ services:
     volumes:
       - ./resource:/app/resource
       - ./config.ts:/app/config.ts
+      - ./location_data:/deno-dir/location_data
