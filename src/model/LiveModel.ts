@@ -94,7 +94,7 @@ export default class LiveModel {
         const baseUrl = LiveModel.BASE_GAME_URL;
         const width = LiveModel.GAME_THUMBNAIL_WIDTH;
         const height = LiveModel.GAME_THUMBNAIL_HEIGHT;
-        this._gameImageUrl = new URL(`${baseUrl}/${gameId}-${width}x${height}.jpg`).href;
+        this._gameImageUrl = new URL(`${baseUrl}/${gameId}_IGDB-${width}x${height}.jpg`).href;
     }
 
     get liveUrl(): string {
