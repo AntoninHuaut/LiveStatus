@@ -34,7 +34,7 @@ export default class TwitchRunnable {
                     liveModel.viewerCount = dataLive.viewer_count;
                     liveModel.startedAt = new Date(dataLive.started_at);
                     liveModel.streamImageUrl = dataLive.thumbnail_url;
-                    liveModel.gameImageUrl = dataLive.game_id;
+                    await liveModel.setGameImageUrl(dataLive.game_id);
                     try {
                         liveModel.streamImageUrlBase64 = await this.fetchBlobImg(liveModel.streamImageUrl);
                     } catch (err) {

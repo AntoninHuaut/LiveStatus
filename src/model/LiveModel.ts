@@ -1,3 +1,5 @@
+import Logger from '../utils/Logger.ts';
+
 export default class LiveModel {
     public static readonly STREAM_IMAGE_WIDTH: number = 1920;
     public static readonly STREAM_IMAGE_HEIGHT: number = 1080;
@@ -90,11 +92,20 @@ export default class LiveModel {
         return this._gameImageUrl;
     }
 
-    set gameImageUrl(gameId: string) {
+    async setGameImageUrl(gameId: string) {
         const baseUrl = LiveModel.BASE_GAME_URL;
         const width = LiveModel.GAME_THUMBNAIL_WIDTH;
         const height = LiveModel.GAME_THUMBNAIL_HEIGHT;
-        this._gameImageUrl = new URL(`${baseUrl}/${gameId}_IGDB-${width}x${height}.jpg`).href;
+
+        const igdbURL = new URL(`${baseUrl}/${gameId}_IGDB-${width}x${height}.jpg`).href;
+        const twitchURL = new URL(`${baseUrl}/${gameId}-${width}x${height}.jpg`).href;
+
+        try {
+            const res = await fetch(igdbURL);
+            this._gameImageUrl = res.redirected ? twitchURL : igdbURL;
+        } catch (err) {
+            Logger.error(`[LiveModel::setGameImageUrl] Error checking game IGDB: "${igdbURL}" error:\n${err.stack}`);
+        }
     }
 
     get liveUrl(): string {
