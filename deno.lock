@@ -2,11 +2,11 @@
   "version": "2",
   "remote": {
     "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/optimized/dayjs.js": "8109789140b7e7cff118fcf550cb085c7ca0a143dc63ccddd31ccc70d97713f1",
-    "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/unoptimized/locale/fr.js": "d0b5d3b89c0342f890aae122acd75bfe85f8f20543e848fa978223ed1f562266",
+    "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/unoptimized/locale/en.js": "1e635f6726cd72e08fe1a00ea10f92ea40e72010a9a6e6f43fd50cc3b0f57502",
     "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/unoptimized/plugin/relativeTime.js": "d32328302db06a2746a2148f15f00941225aaccdd5d4d17136fd8ff854124c32",
     "https://cdn.skypack.dev/dayjs@v1.11.6": "3c5ac7fdc0283a0ee9b70d24991974043f5d2ae898aeb6debd2e2bfca9d4a28a",
-    "https://cdn.skypack.dev/dayjs@v1.11.6/locale/fr": "f5a1b691496ddea3b2f56456a868c5974cb6d651e1e9b1275d1e09d9d359f348",
+    "https://cdn.skypack.dev/dayjs@v1.11.6/locale/en": "432b621d5b6c88c4665c54a025838ad924cf269c187caf4b724d8bd6f2d4aad4",
     "https://cdn.skypack.dev/dayjs@v1.11.6/plugin/relativeTime": "1eb81621be72afa70a629b39e7af2840f400f74de47d2a352ad5131d29ae8a7e",
-    "https://deno.land/std@0.172.0/fmt/colors.ts": "938c5d44d889fb82eff6c358bea8baa7e85950a16c9f6dae3ec3a7a729164471"
+    "https://deno.land/std@0.183.0/fmt/colors.ts": "d67e3cd9f472535241a8e410d33423980bec45047e343577554d3356e1f0ef4e"
   }
 }
