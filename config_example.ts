@@ -11,6 +11,12 @@ export default {
     },
     discord: {
         botToken: '<discord bot token>',
+        interactionCommand: {
+            active: false,
+            applicationId: '', // On Discord Developer Portal (Your application)
+            applicationPublicKey: '', // On Discord Developer Portal (Your application)
+            applicationEndpointPort: 4100, // Need to be set on Discord Developer Portal (Your application)
+        },
         discords: [
             {
                 discordGuildId: '<guildId>',

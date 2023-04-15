@@ -31,8 +31,16 @@ export interface DiscordData {
     config: DiscordDataConfig;
 }
 
+export interface DiscordInteractionCommand {
+    active: boolean;
+    applicationId: string;
+    applicationPublicKey: string;
+    applicationEndpointPort: number;
+}
+
 export interface DiscordConfig {
     botToken: string;
+    interactionCommand: DiscordInteractionCommand;
     discords: DiscordData[];
 }
 
