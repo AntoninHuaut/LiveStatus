@@ -21,7 +21,7 @@ cd LiveStatus/
 Clone the example config file
 
 ```console
-cp config_example.json config.jsonc
+cp config_example.jsonc config.jsonc
 ```
 
 Open the config.jsonc file with your favorite text editor
