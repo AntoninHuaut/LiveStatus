@@ -1,6 +1,6 @@
 import { getStreams } from '../api/twitch_request.ts';
+import CLive from '../type/CLive.ts';
 import * as cache from '../util/cache.ts';
-import CLive from '../util/CLive.ts';
 import * as Logger from '../util/Logger.ts';
 
 export default class TwitchRunnable {
