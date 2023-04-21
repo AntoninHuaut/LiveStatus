@@ -4,7 +4,7 @@ import { DiscordData } from '../model/Config.ts';
 import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
 import LiveModel from '../model/LiveModel.ts';
 import TwitchCache from '../twitch/TwitchCache.ts';
-import I18nManager from '../utils/I18nManager.ts';
+import { getI18n } from '../utils/I18nManager.ts';
 import * as Logger from '../utils/Logger.ts';
 import { DiscordIdsCache } from './DiscordIdsCache.ts';
 import DiscordRequests from './DiscordRequests.ts';
@@ -84,12 +84,12 @@ export default class DiscordClient {
         try {
             const eventItem: EventBody = {
                 channel_id: null,
-                name: I18nManager.getInstance().get('discord.event.title', i18nOptions),
+                name: getI18n('discord.event.title', i18nOptions),
                 entity_metadata: {
                     location: liveModel.liveUrl,
                 },
                 scheduled_end_time: this.getFakedEventEndDate(),
-                description: I18nManager.getInstance().get('discord.event.description', i18nOptions),
+                description: getI18n('discord.event.description', i18nOptions),
                 privacy_level: eventPrivacyLevel,
                 entity_type: eventType,
                 image: liveModel.streamImageUrlBase64,
@@ -178,7 +178,7 @@ export default class DiscordClient {
         };
 
         const i18nOptions = this.getI18nOptions(liveModel);
-        const btnI18n = I18nManager.getInstance().get(`discord.embed.${liveModel.isOnline ? 'online' : 'offline'}.linkBtn`, i18nOptions);
+        const btnI18n = getI18n(`discord.embed.${liveModel.isOnline ? 'online' : 'offline'}.linkBtn`, i18nOptions);
         if (liveModel.isOnline ? this.discordData.config.message.linkBtn.online : this.discordData.config.message.linkBtn.offline) {
             body.components = [
                 {
@@ -201,8 +201,8 @@ export default class DiscordClient {
     private getOfflineEmbed(liveModel: LiveModel): MessageEmbed {
         const i18nOptions = this.getI18nOptions(liveModel);
         return this.cleanEmptyFieldsInEmbed({
-            title: I18nManager.getInstance().get('discord.embed.offline.title', i18nOptions),
-            description: I18nManager.getInstance().get('discord.embed.offline.description', i18nOptions),
+            title: getI18n('discord.embed.offline.title', i18nOptions),
+            description: getI18n('discord.embed.offline.description', i18nOptions),
             url: liveModel.liveUrl,
             type: 'rich',
             color: DiscordClient.COLOR_OFFLINE,
@@ -211,15 +211,15 @@ export default class DiscordClient {
                 height: LiveModel.GAME_THUMBNAIL_HEIGHT,
                 width: LiveModel.GAME_THUMBNAIL_WIDTH,
             },
-            fields: I18nManager.getInstance().get('discord.embed.offline.fields', i18nOptions),
+            fields: getI18n('discord.embed.offline.fields', i18nOptions),
         });
     }
 
     private getOnlineEmbed(liveModel: LiveModel): MessageEmbed {
         const i18nOptions = this.getI18nOptions(liveModel);
         return this.cleanEmptyFieldsInEmbed({
-            title: I18nManager.getInstance().get('discord.embed.online.title', i18nOptions),
-            description: I18nManager.getInstance().get('discord.embed.online.description', i18nOptions),
+            title: getI18n('discord.embed.online.title', i18nOptions),
+            description: getI18n('discord.embed.online.description', i18nOptions),
             url: liveModel.liveUrl,
             type: 'rich',
             color: DiscordClient.COLOR_ONLINE,
@@ -233,7 +233,7 @@ export default class DiscordClient {
                 height: LiveModel.GAME_THUMBNAIL_HEIGHT,
                 width: LiveModel.GAME_THUMBNAIL_WIDTH,
             },
-            fields: I18nManager.getInstance().get('discord.embed.online.fields', i18nOptions),
+            fields: getI18n('discord.embed.online.fields', i18nOptions),
         });
     }
 
