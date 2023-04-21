@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 
 import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
+import * as cache from '../misc/cache.ts';
+import { getI18n } from '../misc/i18nManager.ts';
+import * as Logger from '../misc/logger.ts';
 import CLive from '../type/CLive.ts';
 import { DiscordData } from '../type/IConfig.ts';
 import { EventBody, MessageBody, MessageEmbed } from '../type/IDiscord.ts';
-import * as cache from '../util/cache.ts';
-import { getI18n } from '../util/i18nManager.ts';
-import * as Logger from '../util/logger.ts';
 
 export default class DiscordClient {
     private static readonly COLOR_OFFLINE = 9807270;

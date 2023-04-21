@@ -2,11 +2,11 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs_relativeTime';
 import { parse } from 'encoding/jsonc.ts';
 
+import { initI18n } from './misc/i18nManager.ts';
+import * as Logger from './misc/logger.ts';
 import DiscordClient from './service/DiscordClient.ts';
 import TwitchRunnable from './service/TwitchRunnable.ts';
 import { DiscordData, IConfig } from './type/IConfig.ts';
-import { initI18n } from './util/i18nManager.ts';
-import * as Logger from './util/logger.ts';
 
 dayjs.extend(relativeTime);
 

@@ -1,4 +1,4 @@
-import * as Logger from '../util/logger.ts';
+import * as Logger from '../misc/logger.ts';
 
 export default class CLive {
     public static readonly STREAM_IMAGE_WIDTH: number = 1920;
