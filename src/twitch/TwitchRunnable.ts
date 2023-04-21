@@ -1,7 +1,7 @@
-import Logger from '../utils/Logger.ts';
-import TwitchRequest from './TwitchRequest.ts';
 import LiveModel from '../model/LiveModel.ts';
+import * as Logger from '../utils/Logger.ts';
 import TwitchCache from './TwitchCache.ts';
+import TwitchRequest from './TwitchRequest.ts';
 
 export default class TwitchRunnable {
     private readonly twitchCache: TwitchCache;

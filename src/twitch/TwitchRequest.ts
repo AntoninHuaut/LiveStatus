@@ -1,6 +1,6 @@
 import { TwitchConfig } from '../model/Config.ts';
-import Logger from '../utils/Logger.ts';
 import { fetchURL, HttpMethod } from '../model/Requests.ts';
+import * as Logger from '../utils/Logger.ts';
 
 export default class TwitchRequest {
     private readonly twitchConfig: TwitchConfig;

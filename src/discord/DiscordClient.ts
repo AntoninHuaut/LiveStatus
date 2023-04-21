@@ -5,7 +5,7 @@ import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
 import LiveModel from '../model/LiveModel.ts';
 import TwitchCache from '../twitch/TwitchCache.ts';
 import I18nManager from '../utils/I18nManager.ts';
-import Logger from '../utils/Logger.ts';
+import * as Logger from '../utils/Logger.ts';
 import { DiscordIdsCache } from './DiscordIdsCache.ts';
 import DiscordRequests from './DiscordRequests.ts';
 

@@ -1,4 +1,4 @@
-import Logger from '../utils/Logger.ts';
+import * as Logger from '../utils/Logger.ts';
 
 export default class LiveModel {
     public static readonly STREAM_IMAGE_WIDTH: number = 1920;
@@ -75,9 +75,7 @@ export default class LiveModel {
     }
 
     set streamImageUrl(streamImageUrl: string) {
-        this._streamImageUrl = streamImageUrl
-            .replace('{width}', String(LiveModel.STREAM_IMAGE_WIDTH))
-            .replace('{height}', String(LiveModel.STREAM_IMAGE_HEIGHT));
+        this._streamImageUrl = streamImageUrl.replace('{width}', String(LiveModel.STREAM_IMAGE_WIDTH)).replace('{height}', String(LiveModel.STREAM_IMAGE_HEIGHT));
     }
 
     set streamImageUrlBase64(streamImageUrlBase64: string) {
