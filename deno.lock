@@ -7,6 +7,8 @@
     "https://cdn.skypack.dev/dayjs@v1.11.6/": "3c5ac7fdc0283a0ee9b70d24991974043f5d2ae898aeb6debd2e2bfca9d4a28a",
     "https://cdn.skypack.dev/dayjs@v1.11.6/locale/fr": "f5a1b691496ddea3b2f56456a868c5974cb6d651e1e9b1275d1e09d9d359f348",
     "https://cdn.skypack.dev/dayjs@v1.11.6/plugin/relativeTime": "1eb81621be72afa70a629b39e7af2840f400f74de47d2a352ad5131d29ae8a7e",
+    "https://deno.land/std@0.178.0/_util/asserts.ts": "178dfc49a464aee693a7e285567b3d0b555dc805ff490505a8aae34f9cfb1462",
+    "https://deno.land/std@0.178.0/encoding/jsonc.ts": "02b86115d2b812f26789481ebcf4748171e8ece6514b60243b3733e2c200876a",
     "https://deno.land/std@0.178.0/fmt/colors.ts": "938c5d44d889fb82eff6c358bea8baa7e85950a16c9f6dae3ec3a7a729164471"
   }
 }

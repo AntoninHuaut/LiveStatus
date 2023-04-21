@@ -1,9 +1,9 @@
 import * as Colors from 'fmt/colors.ts';
 
-import config from '../../config.ts';
+import { config } from '../app.ts';
 
 enum LogLevel {
-    INFO = 'INFO ',
+    INFO = 'INFO',
     DEBUG = 'DEBUG',
     ERROR = 'ERROR',
 }

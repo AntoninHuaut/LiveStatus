@@ -1,16 +1,12 @@
-import LiveModel from '../model/LiveModel.ts';
-import * as Logger from '../utils/Logger.ts';
-import TwitchCache from './TwitchCache.ts';
-import TwitchRequest from './TwitchRequest.ts';
+import { getStreams } from '../api/twitch_request.ts';
+import * as cache from '../util/cache.ts';
+import CLive from '../util/CLive.ts';
+import * as Logger from '../util/Logger.ts';
 
 export default class TwitchRunnable {
-    private readonly twitchCache: TwitchCache;
-    private readonly twitchRequest: TwitchRequest;
     private readonly twitchUsername: string;
 
-    constructor(twitchRequest: TwitchRequest, twitchUsername: string) {
-        this.twitchCache = TwitchCache.getInstance();
-        this.twitchRequest = twitchRequest;
+    constructor(twitchUsername: string) {
         this.twitchUsername = twitchUsername;
         Logger.info(`new TwitchRunnable (${twitchUsername})`);
     }
@@ -19,33 +15,33 @@ export default class TwitchRunnable {
         Logger.debug(`TwitchRunnable (${this.twitchUsername}) ticking`);
 
         try {
-            const json = await this.twitchRequest.getStreams(this.twitchUsername);
+            const json = await getStreams(this.twitchUsername);
             Logger.debug(`\n${JSON.stringify(json, null, 2)}`);
 
             const dataArray = json.data;
-            const liveModel: LiveModel = this.twitchCache.get(this.twitchUsername);
+            const liveData: CLive = cache.getTwitch(this.twitchUsername);
 
             if (dataArray.length) {
                 const dataLive = dataArray[0];
                 if (dataLive.type === 'live') {
-                    liveModel.isOnline = true;
-                    liveModel.gameName = dataLive.game_name;
-                    liveModel.streamTitle = dataLive.title;
-                    liveModel.viewerCount = dataLive.viewer_count;
-                    liveModel.startedAt = new Date(dataLive.started_at);
-                    liveModel.streamImageUrl = dataLive.thumbnail_url;
-                    await liveModel.setGameImageUrl(dataLive.game_id);
+                    liveData.isOnline = true;
+                    liveData.gameName = dataLive.game_name;
+                    liveData.streamTitle = dataLive.title;
+                    liveData.viewerCount = dataLive.viewer_count;
+                    liveData.startedAt = new Date(dataLive.started_at);
+                    liveData.streamImageUrl = dataLive.thumbnail_url;
+                    await liveData.setGameImageUrl(dataLive.game_id);
                     try {
-                        liveModel.streamImageUrlBase64 = await this.fetchBlobImg(liveModel.streamImageUrl);
+                        liveData.streamImageUrlBase64 = await this.fetchBlobImg(liveData.streamImageUrl);
                     } catch (err) {
-                        Logger.error(`[LiveModel::streamImageUrl] Error parsing streamImage url: "${liveModel.streamImageUrl}" error:\n${err.stack}`);
+                        Logger.error(`[CLive::streamImageUrl] Error parsing streamImage url: "${liveData.streamImageUrl}" error:\n${err.stack}`);
                     }
 
                     return;
                 }
             }
 
-            liveModel.isOnline = false;
+            liveData.isOnline = false;
         } catch (err) {
             Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err.stack}`);
         }

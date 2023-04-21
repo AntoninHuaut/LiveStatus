@@ -49,7 +49,7 @@ export interface LoggerConfig {
     logFile: string;
 }
 
-export interface Config {
+export interface IConfig {
     logger: LoggerConfig;
     i18n: string;
     twitch: TwitchConfig;

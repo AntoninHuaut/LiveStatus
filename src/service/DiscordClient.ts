@@ -1,20 +1,17 @@
 import dayjs from 'dayjs';
 
-import { DiscordData } from '../model/Config.ts';
-import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
-import LiveModel from '../model/LiveModel.ts';
-import TwitchCache from '../twitch/TwitchCache.ts';
-import { getI18n } from '../utils/I18nManager.ts';
-import * as Logger from '../utils/Logger.ts';
-import { DiscordIdsCache } from './DiscordIdsCache.ts';
-import DiscordRequests from './DiscordRequests.ts';
+import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
+import CLive from '../type/CLive.ts';
+import { DiscordData } from '../type/IConfig.ts';
+import { EventBody, MessageBody, MessageEmbed } from '../type/IDiscord.ts';
+import * as cache from '../util/cache.ts';
+import { getI18n } from '../util/i18nManager.ts';
+import * as Logger from '../util/logger.ts';
 
 export default class DiscordClient {
     private static readonly COLOR_OFFLINE = 9807270;
     private static readonly COLOR_ONLINE = 10181046;
-    private static readonly DELAY_BEFORE_OFFLINE: number = 60 * 1000; // In Ms, prevent stream crash
 
-    private readonly discordRequests: DiscordRequests;
     private readonly discordData: DiscordData;
     private readonly checkIntervalMs: number;
 
@@ -22,12 +19,11 @@ export default class DiscordClient {
     private messageId = '';
     private lastOnlineTime = 0;
 
-    public constructor(discordRequests: DiscordRequests, discordData: DiscordData, checkIntervalMs: number) {
-        this.discordRequests = discordRequests;
+    public constructor(discordData: DiscordData, checkIntervalMs: number) {
         this.discordData = discordData;
         this.checkIntervalMs = checkIntervalMs;
 
-        const idsCache = DiscordIdsCache.getInstance().get(discordData.discordChannelId, discordData.twitchChannelName);
+        const idsCache = cache.getDiscord(discordData.discordChannelId, discordData.twitchChannelName);
         this.eventId = idsCache.eventId;
         this.messageId = idsCache.messageId;
     }
@@ -35,21 +31,21 @@ export default class DiscordClient {
     public async tick() {
         Logger.debug(`DiscordClient (${this.discordData.twitchChannelName}) ticking`);
 
-        const liveModel: LiveModel = TwitchCache.getInstance().get(this.discordData.twitchChannelName);
-        if (!liveModel.isOnline) {
-            await this.offlineTick(liveModel);
+        const liveData: CLive = cache.getTwitch(this.discordData.twitchChannelName);
+        if (!liveData.isOnline) {
+            await this.offlineTick(liveData);
         } else {
-            await this.onlineTick(liveModel);
+            await this.onlineTick(liveData);
         }
     }
 
-    private async offlineTick(liveModel: LiveModel) {
-        const lastOnlineDateWithDelay: Date = new Date(this.lastOnlineTime + DiscordClient.DELAY_BEFORE_OFFLINE);
+    private async offlineTick(liveData: CLive) {
+        const lastOnlineDateWithDelay: Date = new Date(this.lastOnlineTime);
 
         if (lastOnlineDateWithDelay < new Date()) {
             const promises = [];
             if (this.discordData.config.message.active) {
-                promises.push(this.sendOfflineMessage(liveModel));
+                promises.push(this.sendOfflineMessage(liveData));
             }
             if (this.discordData.config.event.active) {
                 promises.push(this.offlineEvent());
@@ -62,45 +58,45 @@ export default class DiscordClient {
         }
     }
 
-    private async onlineTick(liveModel: LiveModel) {
+    private async onlineTick(liveData: CLive) {
         this.lastOnlineTime = Date.now();
 
         const promises = [];
         if (this.discordData.config.message.active) {
-            promises.push(this.sendOnlineMessage(liveModel));
+            promises.push(this.sendOnlineMessage(liveData));
         }
         if (this.discordData.config.event.active) {
-            promises.push(this.onlineEvent(liveModel));
+            promises.push(this.onlineEvent(liveData));
         }
 
         await Promise.all(promises);
     }
 
-    private async onlineEvent(liveModel: LiveModel) {
+    private async onlineEvent(liveData: CLive) {
         const eventPrivacyLevel = 2; // GUILD_ONLY
         const eventType = 3; // EXTERNAL
-        const i18nOptions = this.getI18nOptions(liveModel);
+        const i18nOptions = this.getI18nOptions(liveData);
 
         try {
             const eventItem: EventBody = {
                 channel_id: null,
                 name: getI18n('discord.event.title', i18nOptions),
                 entity_metadata: {
-                    location: liveModel.liveUrl,
+                    location: liveData.liveUrl,
                 },
                 scheduled_end_time: this.getFakedEventEndDate(),
                 description: getI18n('discord.event.description', i18nOptions),
                 privacy_level: eventPrivacyLevel,
                 entity_type: eventType,
-                image: liveModel.streamImageUrlBase64,
+                image: liveData.streamImageUrlBase64,
             };
 
             if (!this.eventId) {
                 eventItem.scheduled_start_time = this.getSoonDate();
-                const jsonResponse = await this.discordRequests.createEvent(this.discordData.discordGuildId, eventItem);
+                const jsonResponse = await createEvent(this.discordData.discordGuildId, eventItem);
                 this.setEventId(jsonResponse.id);
             } else {
-                const jsonResponse = await this.discordRequests.editEvent(this.discordData.discordGuildId, this.eventId, eventItem);
+                const jsonResponse = await editEvent(this.discordData.discordGuildId, this.eventId, eventItem);
                 if (jsonResponse.code && jsonResponse.code >= 10000) {
                     this.setEventId('');
                 }
@@ -114,7 +110,7 @@ export default class DiscordClient {
         if (!this.eventId) return;
 
         try {
-            await this.discordRequests.deleteEvent(this.discordData.discordGuildId, this.eventId);
+            await deleteEvent(this.discordData.discordGuildId, this.eventId);
             this.setEventId('');
         } catch (err) {
             Logger.error(`[DiscordClients::offlineEvent] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
@@ -138,19 +134,19 @@ export default class DiscordClient {
         return dayjs().add(bonusTime, 'millisecond').toDate();
     }
 
-    private async sendOnlineMessage(liveModel: LiveModel) {
+    private async sendOnlineMessage(liveData: CLive) {
         try {
-            const body = this.getBodyMessage(liveModel);
+            const body = this.getBodyMessage(liveData);
             const roleId = this.discordData.discordRoleMentionId;
             if (!this.messageId && roleId?.trim()) {
                 body.content = `<@&${roleId}>`;
             }
 
             if (!this.messageId) {
-                const jsonResponse = await this.discordRequests.createMessage(this.discordData.discordChannelId, body);
+                const jsonResponse = await createMessage(this.discordData.discordChannelId, body);
                 this.setMessageId(jsonResponse.id);
             } else {
-                const jsonResponse = await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, body);
+                const jsonResponse = await editMessage(this.discordData.discordChannelId, this.messageId, body);
                 if (jsonResponse.code && jsonResponse.code >= 10000) {
                     this.setMessageId('');
                 }
@@ -160,26 +156,26 @@ export default class DiscordClient {
         }
     }
 
-    private async sendOfflineMessage(liveModel: LiveModel) {
+    private async sendOfflineMessage(liveData: CLive) {
         if (!this.messageId) return;
 
         try {
-            await this.discordRequests.editMessage(this.discordData.discordChannelId, this.messageId, this.getBodyMessage(liveModel));
+            await editMessage(this.discordData.discordChannelId, this.messageId, this.getBodyMessage(liveData));
         } catch (err) {
             Logger.error(`[DiscordClients::sendOfflineMessage] ${this.discordData.twitchChannelName} error:\n${err.stack}`);
         }
     }
 
-    private getBodyMessage(liveModel: LiveModel): MessageBody {
-        const embed = liveModel.isOnline ? this.getOnlineEmbed(liveModel) : this.getOfflineEmbed(liveModel);
+    private getBodyMessage(liveData: CLive): MessageBody {
+        const embed = liveData.isOnline ? this.getOnlineEmbed(liveData) : this.getOfflineEmbed(liveData);
         const body: MessageBody = {
             embeds: [embed],
             components: [],
         };
 
-        const i18nOptions = this.getI18nOptions(liveModel);
-        const btnI18n = getI18n(`discord.embed.${liveModel.isOnline ? 'online' : 'offline'}.linkBtn`, i18nOptions);
-        if (liveModel.isOnline ? this.discordData.config.message.linkBtn.online : this.discordData.config.message.linkBtn.offline) {
+        const i18nOptions = this.getI18nOptions(liveData);
+        const btnI18n = getI18n(`discord.embed.${liveData.isOnline ? 'online' : 'offline'}.linkBtn`, i18nOptions);
+        if (liveData.isOnline ? this.discordData.config.message.linkBtn.online : this.discordData.config.message.linkBtn.offline) {
             body.components = [
                 {
                     type: 1,
@@ -187,7 +183,7 @@ export default class DiscordClient {
                         {
                             type: 2,
                             style: 5,
-                            url: liveModel.liveUrl,
+                            url: liveData.liveUrl,
                             label: btnI18n,
                         },
                     ],
@@ -198,40 +194,40 @@ export default class DiscordClient {
         return body;
     }
 
-    private getOfflineEmbed(liveModel: LiveModel): MessageEmbed {
-        const i18nOptions = this.getI18nOptions(liveModel);
+    private getOfflineEmbed(liveData: CLive): MessageEmbed {
+        const i18nOptions = this.getI18nOptions(liveData);
         return this.cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.offline.title', i18nOptions),
             description: getI18n('discord.embed.offline.description', i18nOptions),
-            url: liveModel.liveUrl,
+            url: liveData.liveUrl,
             type: 'rich',
             color: DiscordClient.COLOR_OFFLINE,
             thumbnail: {
-                url: liveModel.gameImageUrl,
-                height: LiveModel.GAME_THUMBNAIL_HEIGHT,
-                width: LiveModel.GAME_THUMBNAIL_WIDTH,
+                url: liveData.gameImageUrl,
+                height: CLive.GAME_THUMBNAIL_HEIGHT,
+                width: CLive.GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.offline.fields', i18nOptions),
         });
     }
 
-    private getOnlineEmbed(liveModel: LiveModel): MessageEmbed {
-        const i18nOptions = this.getI18nOptions(liveModel);
+    private getOnlineEmbed(liveData: CLive): MessageEmbed {
+        const i18nOptions = this.getI18nOptions(liveData);
         return this.cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.online.title', i18nOptions),
             description: getI18n('discord.embed.online.description', i18nOptions),
-            url: liveModel.liveUrl,
+            url: liveData.liveUrl,
             type: 'rich',
             color: DiscordClient.COLOR_ONLINE,
             image: {
-                url: `${liveModel.streamImageUrl}?noCache=${new Date().getTime()}`,
-                height: LiveModel.STREAM_IMAGE_HEIGHT,
-                width: LiveModel.STREAM_IMAGE_WIDTH,
+                url: `${liveData.streamImageUrl}?noCache=${new Date().getTime()}`,
+                height: CLive.STREAM_IMAGE_HEIGHT,
+                width: CLive.STREAM_IMAGE_WIDTH,
             },
             thumbnail: {
-                url: liveModel.gameImageUrl,
-                height: LiveModel.GAME_THUMBNAIL_HEIGHT,
-                width: LiveModel.GAME_THUMBNAIL_WIDTH,
+                url: liveData.gameImageUrl,
+                height: CLive.GAME_THUMBNAIL_HEIGHT,
+                width: CLive.GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.online.fields', i18nOptions),
         });
@@ -252,28 +248,28 @@ export default class DiscordClient {
         return dayjs(date).fromNow();
     }
 
-    private getI18nOptions(liveModel: LiveModel) {
+    private getI18nOptions(liveData: CLive) {
         return {
-            '%streamer%': liveModel.userName,
-            '%game%': liveModel.gameName,
-            '%title%': liveModel.streamTitle,
-            '%startDate%': this.formatDate(liveModel.startedAt),
-            '%viewer%': liveModel.viewerCount,
+            '%streamer%': liveData.userName,
+            '%game%': liveData.gameName,
+            '%title%': liveData.streamTitle,
+            '%startDate%': this.formatDate(liveData.startedAt),
+            '%viewer%': liveData.viewerCount,
         };
     }
 
     private setMessageId(messageId: string) {
         this.messageId = messageId;
-        this.setCache();
+        this.setCacheProxy();
     }
 
     private setEventId(eventId: string) {
         this.eventId = eventId;
-        this.setCache();
+        this.setCacheProxy();
     }
 
-    private setCache() {
-        DiscordIdsCache.getInstance().set(this.discordData.discordChannelId, this.discordData.twitchChannelName, {
+    private setCacheProxy() {
+        cache.setDiscord(this.discordData.discordChannelId, this.discordData.twitchChannelName, {
             messageId: this.messageId,
             eventId: this.eventId,
         });
