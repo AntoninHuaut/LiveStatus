@@ -21,10 +21,10 @@ cd LiveStatus/
 Clone the example config file
 
 ```console
-cp config_example.ts config.ts
+cp config_example.jsonc config.jsonc
 ```
 
-Open the config.ts file with your favorite text editor
+Open the config.jsonc file with your favorite text editor
 
 ```typescript
 {
@@ -69,12 +69,15 @@ Open the config.ts file with your favorite text editor
 ```
 
 ### Run the application
+
 #### With Docker
+
 ```console
 docker compose up -d
 ```
 
 #### Without Docker
+
 Install [Deno](https://deno.land/#installation) if you don't have it yet\
 Otherwise check that you are up to date with
 
@@ -89,6 +92,7 @@ deno task start
 ```
 
 ##### With pm2
+
 > Note: you need the process manager [pm2](https://pm2.keymetrics.io/)
 
 ```console

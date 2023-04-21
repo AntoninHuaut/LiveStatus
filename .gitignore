@@ -3,4 +3,4 @@
 .scannerwork/
 location_data/
 /app.log
-/config.ts
+/config.jsonc

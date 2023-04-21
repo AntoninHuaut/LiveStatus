@@ -31,8 +31,16 @@ export interface DiscordData {
     config: DiscordDataConfig;
 }
 
+export interface DiscordInteractionCommand {
+    active: boolean;
+    applicationId: string;
+    applicationPublicKey: string;
+    applicationEndpointPort: number;
+}
+
 export interface DiscordConfig {
     botToken: string;
+    interactionCommand: DiscordInteractionCommand;
     discords: DiscordData[];
 }
 
@@ -41,7 +49,7 @@ export interface LoggerConfig {
     logFile: string;
 }
 
-export interface Config {
+export interface IConfig {
     logger: LoggerConfig;
     i18n: string;
     twitch: TwitchConfig;

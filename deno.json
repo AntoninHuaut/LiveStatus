@@ -1,4 +1,12 @@
 {
+  "imports": {
+    "oak/": "https://deno.land/x/oak@v12.1.0/",
+    "nacl/": "https://deno.land/x/tweetnacl_deno_fix@1.1.2/",
+    "fmt/": "https://deno.land/std@0.178.0/fmt/",
+    "encoding/": "https://deno.land/std@0.178.0/encoding/",
+    "dayjs": "https://cdn.skypack.dev/dayjs@v1.11.6/",
+    "dayjs_relativeTime": "https://cdn.skypack.dev/dayjs@v1.11.6/plugin/relativeTime"
+  },
   "tasks": {
     "start": "deno run --allow-net --allow-write --allow-read src/app.ts",
     "dev": "deno run --allow-net --allow-write --allow-read --watch src/app.ts"
