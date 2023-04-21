@@ -4,5 +4,5 @@ services:
     build: .
     volumes:
       - ./resource:/app/resource
-      - ./config.ts:/app/config.ts
+      - ./config.jsonc:/app/config.jsonc
       - ./location_data:/deno-dir/location_data
