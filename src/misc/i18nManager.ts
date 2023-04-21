@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import { config } from '../app.ts';
-import * as Logger from './Logger.ts';
+import * as Logger from './logger.ts';
 
 type OptionsType = Record<string, string | number | boolean>;
 

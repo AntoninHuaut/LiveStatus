@@ -1,6 +1,6 @@
 import { fetchURL, HttpMethod } from '../api/request.ts';
 import { config } from '../app.ts';
-import * as Logger from '../misc/Logger.ts';
+import * as Logger from '../misc/logger.ts';
 
 let _accessToken = '';
 let accessTokenExpirationDate: Date = new Date(0);
