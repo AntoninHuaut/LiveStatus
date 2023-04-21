@@ -1,6 +1,7 @@
+import dayjs from 'dayjs';
+
 import config from '../../config.ts';
 import Logger from './Logger.ts';
-import { dayjs, loadDayjsLocale } from '../deps.ts';
 
 type OptionsType = Record<string, string | number | boolean>;
 
@@ -36,7 +37,7 @@ export default class I18nManager {
 
     private async setDayjsLocale(locale: string) {
         Logger.info(`Loading dayjs for the locale: ${locale}`);
-        const dayjsLang = await loadDayjsLocale(locale);
+        const dayjsLang = await import(`https://cdn.skypack.dev/dayjs@v1.11.6/locale/${locale}`);
         dayjs.locale(dayjsLang.default);
     }
 

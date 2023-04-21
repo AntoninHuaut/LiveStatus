@@ -1,4 +1,5 @@
-import { Colors } from '../deps.ts';
+import * as Colors from 'fmt/colors.ts';
+
 import config from '../../config.ts';
 
 enum LogLevel {

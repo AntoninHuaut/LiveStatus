@@ -1,16 +1,13 @@
-import { dayjs } from '../deps.ts';
+import dayjs from 'dayjs';
 
-import LiveModel from '../model/LiveModel.ts';
 import { DiscordData } from '../model/Config.ts';
-
-import Logger from '../utils/Logger.ts';
-import I18nManager from '../utils/I18nManager.ts';
+import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
+import LiveModel from '../model/LiveModel.ts';
 import TwitchCache from '../twitch/TwitchCache.ts';
-
+import I18nManager from '../utils/I18nManager.ts';
+import Logger from '../utils/Logger.ts';
 import { DiscordIdsCache } from './DiscordIdsCache.ts';
 import DiscordRequests from './DiscordRequests.ts';
-
-import { EventBody, MessageBody, MessageEmbed } from '../model/DiscordModel.ts';
 
 export default class DiscordClient {
     private static readonly COLOR_OFFLINE = 9807270;

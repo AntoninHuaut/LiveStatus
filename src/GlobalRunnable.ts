@@ -1,5 +1,4 @@
 import DiscordClient from './discord/DiscordClient.ts';
-import DiscordCommand from './discord/DiscordCommand.ts';
 import DiscordRequests from './discord/DiscordRequests.ts';
 import { Config, DiscordConfig, DiscordData } from './model/Config.ts';
 import TwitchRequest from './twitch/TwitchRequest.ts';
@@ -13,7 +12,6 @@ export default class GlobalRunnable {
 
     private readonly discordClients: DiscordClient[];
     private readonly twitchRuns: TwitchRunnable[];
-    private readonly discordCommand: DiscordCommand;
 
     public constructor(config: Config) {
         this.discordClients = [];
@@ -22,7 +20,6 @@ export default class GlobalRunnable {
 
         this.createTwitchRunnable(config);
         this.createDiscordClients(config.discord);
-        this.discordCommand = new DiscordCommand(config.discord.interactionCommand);
 
         this.tick();
     }
