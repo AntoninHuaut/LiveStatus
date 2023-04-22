@@ -5,9 +5,9 @@ import { liveCommandName } from '../interactionServer.ts';
 import * as cache from '../misc/cache.ts';
 import { getI18n } from '../misc/i18nManager.ts';
 import * as Logger from '../misc/logger.ts';
-import CLive from '../type/CLive.ts';
 import { DiscordData } from '../type/IConfig.ts';
 import { EventBody, MessageBody, MessageEmbed } from '../type/IDiscord.ts';
+import { GAME_THUMBNAIL_HEIGHT, GAME_THUMBNAIL_WIDTH, ILiveData, STREAM_IMAGE_HEIGHT, STREAM_IMAGE_WIDTH } from '../type/ILiveData.ts';
 
 export default class DiscordClient {
     private static readonly COLOR_OFFLINE = 9807270;
@@ -36,7 +36,7 @@ export default class DiscordClient {
     public async tick() {
         Logger.debug(`DiscordClient (${this.discordData.twitchChannelName}) ticking`);
 
-        const liveData: CLive = cache.getTwitch(this.discordData.twitchChannelName);
+        const liveData: ILiveData = cache.getTwitch(this.discordData.twitchChannelName);
         if (!liveData.isOnline) {
             await this.offlineTick(liveData);
         } else {
@@ -44,7 +44,7 @@ export default class DiscordClient {
         }
     }
 
-    private async offlineTick(liveData: CLive) {
+    private async offlineTick(liveData: ILiveData) {
         const lastOnlineDateWithDelay: Date = new Date(this.lastOnlineTime);
 
         if (lastOnlineDateWithDelay < new Date()) {
@@ -63,7 +63,7 @@ export default class DiscordClient {
         }
     }
 
-    private async onlineTick(liveData: CLive) {
+    private async onlineTick(liveData: ILiveData) {
         this.lastOnlineTime = Date.now();
 
         const promises = [];
@@ -77,7 +77,7 @@ export default class DiscordClient {
         await Promise.all(promises);
     }
 
-    private async onlineEvent(liveData: CLive) {
+    private async onlineEvent(liveData: ILiveData) {
         const eventPrivacyLevel = 2; // GUILD_ONLY
         const eventType = 3; // EXTERNAL
         const i18nOptions = this.getI18nOptions(liveData);
@@ -87,13 +87,13 @@ export default class DiscordClient {
                 channel_id: null,
                 name: getI18n('discord.event.title', i18nOptions),
                 entity_metadata: {
-                    location: liveData.liveUrl,
+                    location: liveData.liveUrl(),
                 },
                 scheduled_end_time: this.getFakedEventEndDate(),
                 description: getI18n('discord.event.description', i18nOptions),
                 privacy_level: eventPrivacyLevel,
                 entity_type: eventType,
-                image: liveData.streamImageUrlBase64,
+                image: liveData.streamImageUrlBase64(),
             };
 
             if (!this.eventId) {
@@ -139,7 +139,7 @@ export default class DiscordClient {
         return dayjs().add(bonusTime, 'millisecond').toDate();
     }
 
-    private async sendOnlineMessage(liveData: CLive) {
+    private async sendOnlineMessage(liveData: ILiveData) {
         try {
             const body = this.getBodyMessage(liveData);
             const roleId = this.discordData.discordRoleMentionId;
@@ -161,7 +161,7 @@ export default class DiscordClient {
         }
     }
 
-    private async sendOfflineMessage(liveData: CLive) {
+    private async sendOfflineMessage(liveData: ILiveData) {
         if (!this.messageId) return;
 
         try {
@@ -171,16 +171,16 @@ export default class DiscordClient {
         }
     }
 
-    public getBodyMessage(liveData: CLive): MessageBody {
-        const embed = liveData.isOnline ? this.getOnlineEmbed(liveData) : this.getOfflineEmbed(liveData);
+    public getBodyMessage(liveData: ILiveData): MessageBody {
+        const embed = liveData.isOnline() ? this.getOnlineEmbed(liveData) : this.getOfflineEmbed(liveData);
         const body: MessageBody = {
             embeds: [embed],
             components: [],
         };
 
         const i18nOptions = this.getI18nOptions(liveData);
-        const btnI18n = getI18n(`discord.embed.${liveData.isOnline ? 'online' : 'offline'}.linkBtn`, i18nOptions);
-        if (liveData.isOnline ? this.discordData.config.message.linkBtn.online : this.discordData.config.message.linkBtn.offline) {
+        const btnI18n = getI18n(`discord.embed.${liveData.isOnline() ? 'online' : 'offline'}.linkBtn`, i18nOptions);
+        if (liveData.isOnline() ? this.discordData.config.message.linkBtn.online : this.discordData.config.message.linkBtn.offline) {
             body.components = [
                 {
                     type: 1,
@@ -188,7 +188,7 @@ export default class DiscordClient {
                         {
                             type: 2,
                             style: 5,
-                            url: liveData.liveUrl,
+                            url: liveData.liveUrl(),
                             label: btnI18n,
                         },
                     ],
@@ -199,18 +199,18 @@ export default class DiscordClient {
         return body;
     }
 
-    private getOfflineEmbed(liveData: CLive): MessageEmbed {
+    private getOfflineEmbed(liveData: ILiveData): MessageEmbed {
         const i18nOptions = this.getI18nOptions(liveData);
         return this.cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.offline.title', i18nOptions),
             description: getI18n('discord.embed.offline.description', i18nOptions),
-            url: liveData.liveUrl,
+            url: liveData.liveUrl(),
             type: 'rich',
             color: DiscordClient.COLOR_OFFLINE,
             thumbnail: {
-                url: liveData.gameImageUrl,
-                height: CLive.GAME_THUMBNAIL_HEIGHT,
-                width: CLive.GAME_THUMBNAIL_WIDTH,
+                url: liveData.gameImageUrl(),
+                height: GAME_THUMBNAIL_HEIGHT,
+                width: GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.offline.fields', i18nOptions),
             footer: {
@@ -220,23 +220,23 @@ export default class DiscordClient {
         });
     }
 
-    private getOnlineEmbed(liveData: CLive): MessageEmbed {
+    private getOnlineEmbed(liveData: ILiveData): MessageEmbed {
         const i18nOptions = this.getI18nOptions(liveData);
         return this.cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.online.title', i18nOptions),
             description: getI18n('discord.embed.online.description', i18nOptions),
-            url: liveData.liveUrl,
+            url: liveData.liveUrl(),
             type: 'rich',
             color: DiscordClient.COLOR_ONLINE,
             image: {
-                url: `${liveData.streamImageUrl}?noCache=${new Date().getTime()}`,
-                height: CLive.STREAM_IMAGE_HEIGHT,
-                width: CLive.STREAM_IMAGE_WIDTH,
+                url: `${liveData.streamImageUrl()}?noCache=${new Date().getTime()}`,
+                height: STREAM_IMAGE_HEIGHT,
+                width: STREAM_IMAGE_WIDTH,
             },
             thumbnail: {
-                url: liveData.gameImageUrl,
-                height: CLive.GAME_THUMBNAIL_HEIGHT,
-                width: CLive.GAME_THUMBNAIL_WIDTH,
+                url: liveData.gameImageUrl(),
+                height: GAME_THUMBNAIL_HEIGHT,
+                width: GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.online.fields', i18nOptions),
             footer: {
@@ -261,13 +261,13 @@ export default class DiscordClient {
         return dayjs(date).fromNow();
     }
 
-    private getI18nOptions(liveData: CLive) {
+    private getI18nOptions(liveData: ILiveData) {
         return {
-            '%streamer%': liveData.userName,
-            '%game%': liveData.gameName,
-            '%title%': liveData.streamTitle,
-            '%startDate%': this.formatDate(liveData.startedAt),
-            '%viewer%': liveData.viewerCount,
+            '%streamer%': liveData.userName(),
+            '%game%': liveData.gameName(),
+            '%title%': liveData.streamTitle(),
+            '%startDate%': this.formatDate(liveData.startedAt()),
+            '%viewer%': liveData.viewerCount(),
         };
     }
 
