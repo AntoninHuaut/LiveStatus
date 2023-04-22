@@ -9,7 +9,7 @@ import * as Logger from './misc/logger.ts';
 import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from './type/ICommand.ts';
 
 export const liveCommandName = 'live';
-export let liveCommand: IApplicationCommand | null;
+const liveCommand: Record<string, IApplicationCommand | null> = {};
 
 async function setupInteraction() {
     const applicationId = config.discord.interactionCommand.applicationId;
@@ -32,7 +32,7 @@ async function setupInteraction() {
             const commands = await getApplicationCommands(applicationId, guildId);
             for (const command of commands) {
                 if (command.name === liveCommandName) {
-                    liveCommand = command;
+                    liveCommand[guildId] = command;
                 }
             }
 
@@ -55,12 +55,12 @@ async function setupInteraction() {
                 partialLiveCommand.options = [];
             }
 
-            if (liveCommand) {
+            if (liveCommand[guildId]) {
                 const editPartialLiveCommand = { ...partialLiveCommand } as IEditApplicationCommand & { type?: number };
                 delete editPartialLiveCommand.type;
-                const result = await editApplicationCommand(editPartialLiveCommand as IEditApplicationCommand, applicationId, guildId, liveCommand.id);
+                const result = await editApplicationCommand(editPartialLiveCommand as IEditApplicationCommand, applicationId, guildId, liveCommand[guildId]!.id);
                 if (result.id) {
-                    liveCommand = result;
+                    liveCommand[guildId] = result;
                     Logger.debug('Edited live command');
                 } else {
                     Logger.error(`Failed to edit live command (guildId = ${guildId}): \n${JSON.stringify(result)}`);
@@ -68,7 +68,7 @@ async function setupInteraction() {
             } else {
                 const result = await createApplicationCommand(partialLiveCommand, applicationId, guildId);
                 if (result.id) {
-                    liveCommand = result;
+                    liveCommand[guildId] = result;
                     Logger.debug('Created live command');
                 } else {
                     Logger.error(`Failed to create live command (guildId = ${guildId}): \n${JSON.stringify(result)}`);
@@ -134,8 +134,8 @@ export async function startInteractionServer() {
 function handleInteraction(jsonBody: any) {
     try {
         const data = jsonBody.data;
-        if (data.id === liveCommand?.id) {
-            const guildId = jsonBody.guild_id;
+        const guildId = jsonBody.guild_id;
+        if (data.id === liveCommand[guildId]?.id) {
             const options = data.options;
             let streamerName = '';
             if (options && options.length === 1) {
