@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
 import { liveCommandName } from '../interactionServer.ts';
 import * as cache from '../misc/cache.ts';
-import { getI18n } from '../misc/i18nManager.ts';
+import { getI18n } from '../misc/i18n.ts';
 import * as Logger from '../misc/logger.ts';
 import { DiscordData } from '../type/IConfig.ts';
 import { EventBody, MessageBody, MessageEmbed } from '../type/IDiscord.ts';

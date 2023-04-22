@@ -3,7 +3,7 @@ import relativeTime from 'dayjs_relativeTime';
 import { parse } from 'encoding/jsonc.ts';
 
 import { startInteractionServer } from './interactionServer.ts';
-import { initI18n } from './misc/i18nManager.ts';
+import { initI18n } from './misc/i18n.ts';
 import * as Logger from './misc/logger.ts';
 import DiscordClient from './service/DiscordClient.ts';
 import { createTwitchRunnable, TwitchRunnable } from './service/TwitchRunnable.ts';

@@ -4,7 +4,7 @@ import { Application } from 'oak/mod.ts';
 import { createApplicationCommand, editApplicationCommand, getApplicationCommands } from './api/discord_request.ts';
 import { config, discordClients } from './app.ts';
 import * as cache from './misc/cache.ts';
-import { getI18n } from './misc/i18nManager.ts';
+import { getI18n } from './misc/i18n.ts';
 import * as Logger from './misc/logger.ts';
 import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from './type/ICommand.ts';
 
