@@ -63,7 +63,7 @@ async function setupInteraction() {
                     liveCommand = result;
                     Logger.debug('Edited live command');
                 } else {
-                    Logger.error(`Failed to edit live command: \n${JSON.stringify(result)}`);
+                    Logger.error(`Failed to edit live command (guildId = ${guildId}): \n${JSON.stringify(result)}`);
                 }
             } else {
                 const result = await createApplicationCommand(partialLiveCommand, applicationId, guildId);
@@ -71,7 +71,7 @@ async function setupInteraction() {
                     liveCommand = result;
                     Logger.debug('Created live command');
                 } else {
-                    Logger.error(`Failed to create live command: \n${JSON.stringify(result)}`);
+                    Logger.error(`Failed to create live command (guildId = ${guildId}): \n${JSON.stringify(result)}`);
                 }
             }
         } catch (error) {
