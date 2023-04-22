@@ -6,7 +6,7 @@ import { startInteractionServer } from './interactionServer.ts';
 import { initI18n } from './misc/i18nManager.ts';
 import * as Logger from './misc/logger.ts';
 import DiscordClient from './service/DiscordClient.ts';
-import TwitchRunnable from './service/TwitchRunnable.ts';
+import { createTwitchRunnable, TwitchRunnable } from './service/TwitchRunnable.ts';
 import { DiscordData, IConfig } from './type/IConfig.ts';
 
 dayjs.extend(relativeTime);
@@ -25,7 +25,7 @@ export async function startRunnable() {
     const checkIntervalMs = Math.max(config.twitch.checkIntervalMs, MIN_CHECK_INTERVAL_MS);
 
     config.discord.discords.forEach((discord: DiscordData) => {
-        twitchRuns.push(new TwitchRunnable(discord.twitchChannelName));
+        twitchRuns.push(createTwitchRunnable(discord.twitchChannelName));
         discordClients.push(new DiscordClient(discord, checkIntervalMs));
     });
 

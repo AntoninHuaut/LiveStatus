@@ -3,66 +3,55 @@ import * as cache from '../misc/cache.ts';
 import * as Logger from '../misc/logger.ts';
 import CLive from '../type/CLive.ts';
 
-export default class TwitchRunnable {
-    private readonly twitchUsername: string;
+export interface TwitchRunnable {
+    tick: () => Promise<void>;
+}
 
-    constructor(twitchUsername: string) {
-        this.twitchUsername = twitchUsername;
-        Logger.info(`new TwitchRunnable (${twitchUsername})`);
-    }
+export function createTwitchRunnable(twitchUsername: string): TwitchRunnable {
+    Logger.info(`new TwitchRunnable (${twitchUsername})`);
 
-    public async tick(): Promise<void> {
-        Logger.debug(`TwitchRunnable (${this.twitchUsername}) ticking`);
+    const tick = async () => {
+        Logger.debug(`TwitchRunnable (${twitchUsername}) ticking`);
 
         try {
-            const json = await getStreams(this.twitchUsername);
+            const json = await getStreams(twitchUsername);
             Logger.debug(`\n${JSON.stringify(json, null, 2)}`);
 
             const dataArray = json.data;
-            const liveData: CLive = cache.getTwitch(this.twitchUsername);
+            const liveData: CLive = cache.getTwitch(twitchUsername);
 
-            if (dataArray.length) {
-                const dataLive = dataArray[0];
-                if (dataLive.type === 'live') {
-                    liveData.isOnline = true;
-                    liveData.gameName = dataLive.game_name;
-                    liveData.streamTitle = dataLive.title;
-                    liveData.viewerCount = dataLive.viewer_count;
-                    liveData.startedAt = new Date(dataLive.started_at);
-                    liveData.streamImageUrl = dataLive.thumbnail_url;
-                    await liveData.setGameImageUrl(dataLive.game_id);
-                    try {
-                        liveData.streamImageUrlBase64 = await this.fetchBlobImg(liveData.streamImageUrl);
-                    } catch (err) {
-                        Logger.error(`[CLive::streamImageUrl] Error parsing streamImage url: "${liveData.streamImageUrl}" error:\n${err.stack}`);
-                    }
-
-                    return;
+            liveData.isOnline = dataArray.length > 0 && dataArray[0]?.type === 'live';
+            if (liveData.isOnline) {
+                liveData.isOnline = true;
+                liveData.gameName = dataArray[0].game_name;
+                liveData.streamTitle = dataArray[0].title;
+                liveData.viewerCount = dataArray[0].viewer_count;
+                liveData.startedAt = new Date(dataArray[0].started_at);
+                liveData.streamImageUrl = dataArray[0].thumbnail_url;
+                await liveData.setGameImageUrl(dataArray[0].game_id);
+                try {
+                    liveData.streamImageUrlBase64 = await fetchBlobImg(liveData.streamImageUrl);
+                } catch (err) {
+                    Logger.error(`[CLive::streamImageUrl] Error parsing streamImage url: "${liveData.streamImageUrl}" error:\n${err.stack}`);
                 }
             }
-
-            liveData.isOnline = false;
         } catch (err) {
-            Logger.error(`TwitchRunnable ${this.twitchUsername} error:\n${err.stack}`);
+            Logger.error(`TwitchRunnable ${twitchUsername} error:\n${err.stack}`);
         }
-    }
+    };
 
-    private fetchBlobImg(url: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            try {
-                fetch(url)
-                    .then((response) => response.blob())
-                    .then((blob) => {
-                        const reader = new FileReader();
-                        reader.onload = function () {
-                            resolve(this.result as string);
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
-                    });
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
+    const fetchBlobImg = (url: string) => {
+        return fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
+                const reader = new FileReader();
+                return new Promise<string>((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            });
+    };
+
+    return { tick };
 }
