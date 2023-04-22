@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 
 import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
+import { liveCommandName } from '../interactionServer.ts';
 import * as cache from '../misc/cache.ts';
 import { getI18n } from '../misc/i18nManager.ts';
 import * as Logger from '../misc/logger.ts';
@@ -26,6 +27,10 @@ export default class DiscordClient {
         const idsCache = cache.getDiscord(discordData.discordChannelId, discordData.twitchChannelName);
         this.eventId = idsCache.eventId;
         this.messageId = idsCache.messageId;
+    }
+
+    public getDiscordData(): DiscordData {
+        return this.discordData;
     }
 
     public async tick() {
@@ -166,7 +171,7 @@ export default class DiscordClient {
         }
     }
 
-    private getBodyMessage(liveData: CLive): MessageBody {
+    public getBodyMessage(liveData: CLive): MessageBody {
         const embed = liveData.isOnline ? this.getOnlineEmbed(liveData) : this.getOfflineEmbed(liveData);
         const body: MessageBody = {
             embeds: [embed],
@@ -208,6 +213,10 @@ export default class DiscordClient {
                 width: CLive.GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.offline.fields', i18nOptions),
+            footer: {
+                text: `/${liveCommandName}`,
+                icon_url: 'https://i.imgur.com/Qo9ZWge.png',
+            },
         });
     }
 
@@ -230,6 +239,10 @@ export default class DiscordClient {
                 width: CLive.GAME_THUMBNAIL_WIDTH,
             },
             fields: getI18n('discord.embed.online.fields', i18nOptions),
+            footer: {
+                text: `/${liveCommandName}`,
+                icon_url: 'https://i.imgur.com/Qo9ZWge.png',
+            },
         });
     }
 

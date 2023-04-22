@@ -25,6 +25,13 @@ export interface MessageEmbed {
     image?: MessageImage;
     thumbnail?: MessageThumbnail;
     fields: MessageField[];
+    footer?: MessageFooter;
+}
+
+interface MessageFooter {
+    text: string;
+    icon_url?: string;
+    proxy_icon_url?: string;
 }
 
 interface MessageComponent {

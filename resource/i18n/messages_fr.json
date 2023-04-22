@@ -4,6 +4,12 @@
             "title": "%streamer% est en live",
             "description": ":information_source: **%title%**\n\n:video_game: **%game%**"
         },
+        "liveCommand": {
+            "optionName": "streameur",
+            "description": "Affiche les informations du live",
+            "streamerNotFound": "❌ Le streameur n'a pas été trouvé",
+            "appError": "❌ Une erreur est survenue"
+        },
         "embed": {
             "online": {
                 "title": ":red_circle: %streamer% est en live sur Twitch !",
