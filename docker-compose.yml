@@ -2,6 +2,8 @@ services:
   livestatus:
     restart: unless-stopped
     build: .
+    ports:
+      - 4100:4100
     volumes:
       - ./resource:/app/resource
       - ./config.jsonc:/app/config.jsonc
