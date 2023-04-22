@@ -1,67 +1,67 @@
-interface MessageImage {
+interface IMessageImage {
     url: string;
     height: number;
     width: number;
 }
 
-interface MessageThumbnail {
+interface IMessageThumbnail {
     url: string;
     height: number;
     width: number;
 }
 
-interface MessageField {
+interface IMessageField {
     name: string;
     value: string;
     inline: boolean;
 }
 
-export interface MessageEmbed {
+export interface IMessageEmbed {
     title: string;
     description?: string;
     url: string;
     type: string;
     color: number;
-    image?: MessageImage;
-    thumbnail?: MessageThumbnail;
-    fields: MessageField[];
-    footer?: MessageFooter;
+    image?: IMessageImage;
+    thumbnail?: IMessageThumbnail;
+    fields: IMessageField[];
+    footer?: IMessageFooter;
 }
 
-interface MessageFooter {
+interface IMessageFooter {
     text: string;
     icon_url?: string;
     proxy_icon_url?: string;
 }
 
-interface MessageComponent {
+interface IMessageComponent {
     type: number;
 }
 
-interface MessageButton extends MessageComponent {
+interface IMessageButton extends IMessageComponent {
     label: string;
     style: number;
     url: string;
 }
 
-interface MessageActionRow extends MessageComponent {
-    components?: MessageButton[];
+interface IMessageActionRow extends IMessageComponent {
+    components?: IMessageButton[];
 }
 
-export interface MessageBody {
+export interface IMessageBody {
     content?: string;
-    components?: MessageActionRow[];
-    embeds: MessageEmbed[];
+    components?: IMessageActionRow[];
+    embeds: IMessageEmbed[];
 }
 
-interface EventMetadata {
+interface IEventMetadata {
     location: string;
 }
 
-export interface EventBody {
+export interface IEventBody {
     channel_id: null;
     name: string;
-    entity_metadata: EventMetadata;
+    entity_metadata: IEventMetadata;
     scheduled_start_time?: Date;
     scheduled_end_time: Date;
     description: string;
@@ -70,7 +70,7 @@ export interface EventBody {
     image: string;
 }
 
-export interface DiscordIdsCacheModel {
+export interface IDiscordIdsCacheModel {
     messageId: string;
     eventId: string;
 }

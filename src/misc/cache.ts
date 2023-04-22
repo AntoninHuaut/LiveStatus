@@ -1,15 +1,15 @@
-import { DiscordIdsCacheModel } from '../type/IDiscord.ts';
+import { IDiscordIdsCacheModel } from '../type/IDiscord.ts';
 import { createLiveData, ILiveData } from '../type/ILiveData.ts';
 
 const CACHE_VERSION = 'v2';
 const getCacheKey = (discordChannelId: string, twitchUserName: string): string => `${discordChannelId}-${twitchUserName}-${CACHE_VERSION}`;
 
-export function getDiscord(discordChannelId: string, twitchUserName: string): DiscordIdsCacheModel {
+export function getDiscord(discordChannelId: string, twitchUserName: string): IDiscordIdsCacheModel {
     const item = localStorage.getItem(getCacheKey(discordChannelId, twitchUserName));
     return item ? JSON.parse(item) : { messageId: '', eventId: '' };
 }
 
-export function setDiscord(discordChannelId: string, twitchUserName: string, idItem: DiscordIdsCacheModel) {
+export function setDiscord(discordChannelId: string, twitchUserName: string, idItem: IDiscordIdsCacheModel) {
     localStorage.setItem(getCacheKey(discordChannelId, twitchUserName), JSON.stringify(idItem));
 }
 

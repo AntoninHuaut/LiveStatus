@@ -5,20 +5,20 @@ import { liveCommandName } from '../interactionServer.ts';
 import * as cache from '../misc/cache.ts';
 import { getI18n } from '../misc/i18n.ts';
 import * as Logger from '../misc/logger.ts';
-import { DiscordData } from '../type/IConfig.ts';
-import { EventBody, MessageBody, MessageEmbed } from '../type/IDiscord.ts';
+import { IDiscordData } from '../type/IConfig.ts';
+import { IEventBody, IMessageBody, IMessageEmbed } from '../type/IDiscord.ts';
 import { GAME_THUMBNAIL_HEIGHT, GAME_THUMBNAIL_WIDTH, ILiveData, STREAM_IMAGE_HEIGHT, STREAM_IMAGE_WIDTH } from '../type/ILiveData.ts';
 
 const COLOR_OFFLINE = 9807270;
 const COLOR_ONLINE = 10181046;
 
 export interface IDiscordClient {
-    getDiscordData: () => DiscordData;
+    getDiscordData: () => IDiscordData;
     tick: () => Promise<void>;
-    getBodyMessage: (liveData: ILiveData) => MessageBody;
+    getBodyMessage: (liveData: ILiveData) => IMessageBody;
 }
 
-export function createDiscordClient(discordData: DiscordData, checkIntervalMs: number): IDiscordClient {
+export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: number): IDiscordClient {
     let { eventId, messageId } = cache.getDiscord(discordData.discordChannelId, discordData.twitchChannelName);
     let lastOnlineTime = 0;
 
@@ -66,7 +66,7 @@ export function createDiscordClient(discordData: DiscordData, checkIntervalMs: n
         const i18nOptions = getI18nOptions(liveData);
 
         try {
-            const eventItem: EventBody = {
+            const eventItem: IEventBody = {
                 channel_id: null,
                 name: getI18n('discord.event.title', i18nOptions),
                 entity_metadata: {
@@ -147,9 +147,9 @@ export function createDiscordClient(discordData: DiscordData, checkIntervalMs: n
         }
     };
 
-    const getBodyMessage = (liveData: ILiveData): MessageBody => {
+    const getBodyMessage = (liveData: ILiveData): IMessageBody => {
         const embed = liveData.isOnline() ? getOnlineEmbed(liveData) : getOfflineEmbed(liveData);
-        const body: MessageBody = {
+        const body: IMessageBody = {
             embeds: [embed],
             components: [],
         };
@@ -175,7 +175,7 @@ export function createDiscordClient(discordData: DiscordData, checkIntervalMs: n
         return body;
     };
 
-    const getOfflineEmbed = (liveData: ILiveData): MessageEmbed => {
+    const getOfflineEmbed = (liveData: ILiveData): IMessageEmbed => {
         const i18nOptions = getI18nOptions(liveData);
         return cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.offline.title', i18nOptions),
@@ -196,7 +196,7 @@ export function createDiscordClient(discordData: DiscordData, checkIntervalMs: n
         });
     };
 
-    const getOnlineEmbed = (liveData: ILiveData): MessageEmbed => {
+    const getOnlineEmbed = (liveData: ILiveData): IMessageEmbed => {
         const i18nOptions = getI18nOptions(liveData);
         return cleanEmptyFieldsInEmbed({
             title: getI18n('discord.embed.online.title', i18nOptions),
@@ -222,7 +222,7 @@ export function createDiscordClient(discordData: DiscordData, checkIntervalMs: n
         });
     };
 
-    const cleanEmptyFieldsInEmbed = (embed: MessageEmbed): MessageEmbed => {
+    const cleanEmptyFieldsInEmbed = (embed: IMessageEmbed): IMessageEmbed => {
         if (!embed.thumbnail?.url) {
             delete embed.thumbnail;
         }

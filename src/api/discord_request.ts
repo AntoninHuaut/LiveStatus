@@ -1,21 +1,21 @@
 import { config } from '../app.ts';
 import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from '../type/ICommand.ts';
-import { EventBody, MessageBody } from '../type/IDiscord.ts';
+import { IEventBody, IMessageBody } from '../type/IDiscord.ts';
 import { fetchURL, HttpMethod } from './request.ts';
 
-export function createMessage(channelId: string, body: MessageBody) {
+export function createMessage(channelId: string, body: IMessageBody) {
     return fetchDiscord(`channels/${channelId}/messages`, HttpMethod.POST, body).then((res) => res.json());
 }
 
-export function editMessage(channelId: string, messageId: string, body: MessageBody) {
+export function editMessage(channelId: string, messageId: string, body: IMessageBody) {
     return fetchDiscord(`channels/${channelId}/messages/${messageId}`, HttpMethod.PATCH, body).then((res) => res.json());
 }
 
-export function createEvent(guildId: string, body: EventBody) {
+export function createEvent(guildId: string, body: IEventBody) {
     return fetchDiscord(`guilds/${guildId}/scheduled-events`, HttpMethod.POST, body).then((res) => res.json());
 }
 
-export function editEvent(guildId: string, eventId: string, body: EventBody) {
+export function editEvent(guildId: string, eventId: string, body: IEventBody) {
     return fetchDiscord(`guilds/${guildId}/scheduled-events/${eventId}`, HttpMethod.PATCH, body).then((res) => res.json());
 }
 
