@@ -5,7 +5,7 @@ import { parse } from 'encoding/jsonc.ts';
 import { startInteractionServer } from './interactionServer.ts';
 import { initI18n } from './misc/i18n.ts';
 import * as Logger from './misc/logger.ts';
-import DiscordClient from './service/DiscordClient.ts';
+import { createDiscordClient, IDiscordClient } from './service/DiscordClient.ts';
 import { createTwitchRunnable, TwitchRunnable } from './service/twitchRunnable.ts';
 import { DiscordData, IConfig } from './type/IConfig.ts';
 
@@ -15,7 +15,7 @@ export const config: IConfig = parse(Deno.readTextFileSync('./config.jsonc')) as
 
 let intervalId: number;
 
-export const discordClients: DiscordClient[] = [];
+export const discordClients: IDiscordClient[] = [];
 export const twitchRuns: TwitchRunnable[] = [];
 
 export async function startRunnable() {
@@ -26,7 +26,7 @@ export async function startRunnable() {
 
     config.discord.discords.forEach((discord: DiscordData) => {
         twitchRuns.push(createTwitchRunnable(discord.twitchChannelName));
-        discordClients.push(new DiscordClient(discord, checkIntervalMs));
+        discordClients.push(createDiscordClient(discord, checkIntervalMs));
     });
 
     async function tick() {
@@ -37,7 +37,7 @@ export async function startRunnable() {
         await Promise.all(promises);
 
         promises.length = 0;
-        discordClients.forEach((discordClient: DiscordClient) => promises.push(discordClient.tick()));
+        discordClients.forEach((discordClient: IDiscordClient) => promises.push(discordClient.tick()));
         await Promise.all(promises);
     }
 
