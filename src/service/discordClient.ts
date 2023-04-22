@@ -33,13 +33,8 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
 
         if (lastOnlineDateWithDelay < new Date()) {
             const promises = [];
-            if (discordData.config.message.active) {
-                promises.push(sendOfflineMessage(liveData));
-            }
-            if (discordData.config.event.active) {
-                promises.push(offlineEvent());
-            }
-
+            if (discordData.config.message.active) promises.push(sendOfflineMessage(liveData));
+            if (discordData.config.event.active) promises.push(offlineEvent());
             await Promise.all(promises);
 
             setMessageId('');
@@ -50,13 +45,8 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
         lastOnlineTime = Date.now();
 
         const promises = [];
-        if (discordData.config.message.active) {
-            promises.push(sendOnlineMessage(liveData));
-        }
-        if (discordData.config.event.active) {
-            promises.push(onlineEvent(liveData));
-        }
-
+        if (discordData.config.message.active) promises.push(sendOnlineMessage(liveData));
+        if (discordData.config.event.active) promises.push(onlineEvent(liveData));
         await Promise.all(promises);
     };
 
@@ -223,29 +213,21 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
     };
 
     const cleanEmptyFieldsInEmbed = (embed: IMessageEmbed): IMessageEmbed => {
-        if (!embed.thumbnail?.url) {
-            delete embed.thumbnail;
-        }
-        if (!embed.image?.url) {
-            delete embed.image;
-        }
+        if (!embed.thumbnail?.url) delete embed.thumbnail;
+        if (!embed.image?.url) delete embed.image;
         embed.fields = embed.fields.filter((key) => key.value);
         return embed;
     };
 
-    const formatDate = (date: Date) => {
-        return dayjs(date).fromNow();
-    };
+    const formatDate = (date: Date) => dayjs(date).fromNow();
 
-    const getI18nOptions = (liveData: ILiveData) => {
-        return {
-            '%streamer%': liveData.userName(),
-            '%game%': liveData.gameName(),
-            '%title%': liveData.streamTitle(),
-            '%startDate%': formatDate(liveData.startedAt()),
-            '%viewer%': liveData.viewerCount(),
-        };
-    };
+    const getI18nOptions = (liveData: ILiveData) => ({
+        '%streamer%': liveData.userName(),
+        '%game%': liveData.gameName(),
+        '%title%': liveData.streamTitle(),
+        '%startDate%': formatDate(liveData.startedAt()),
+        '%viewer%': liveData.viewerCount(),
+    });
 
     const setMessageId = (_messageId: string) => {
         messageId = _messageId;
