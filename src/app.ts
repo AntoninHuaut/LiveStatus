@@ -3,11 +3,11 @@ import relativeTime from 'dayjs_relativeTime';
 import { parse } from 'encoding/jsonc.ts';
 
 import { startInteractionServer } from './interactionServer.ts';
-import { initI18n } from './misc/i18nManager.ts';
+import { initI18n } from './misc/i18n.ts';
 import * as Logger from './misc/logger.ts';
-import DiscordClient from './service/DiscordClient.ts';
-import TwitchRunnable from './service/TwitchRunnable.ts';
-import { DiscordData, IConfig } from './type/IConfig.ts';
+import { createDiscordClient, IDiscordClient } from './service/discordClient.ts';
+import { createTwitchRunnable, TwitchRunnable } from './service/twitchRunnable.ts';
+import { IConfig, IDiscordData } from './type/IConfig.ts';
 
 dayjs.extend(relativeTime);
 
@@ -15,7 +15,7 @@ export const config: IConfig = parse(Deno.readTextFileSync('./config.jsonc')) as
 
 let intervalId: number;
 
-export const discordClients: DiscordClient[] = [];
+export const discordClients: IDiscordClient[] = [];
 export const twitchRuns: TwitchRunnable[] = [];
 
 export async function startRunnable() {
@@ -24,9 +24,9 @@ export async function startRunnable() {
     const MIN_CHECK_INTERVAL_MS = 1000;
     const checkIntervalMs = Math.max(config.twitch.checkIntervalMs, MIN_CHECK_INTERVAL_MS);
 
-    config.discord.discords.forEach((discord: DiscordData) => {
-        twitchRuns.push(new TwitchRunnable(discord.twitchChannelName));
-        discordClients.push(new DiscordClient(discord, checkIntervalMs));
+    config.discord.discords.forEach((discord: IDiscordData) => {
+        twitchRuns.push(createTwitchRunnable(discord.twitchChannelName));
+        discordClients.push(createDiscordClient(discord, checkIntervalMs));
     });
 
     async function tick() {
@@ -37,7 +37,7 @@ export async function startRunnable() {
         await Promise.all(promises);
 
         promises.length = 0;
-        discordClients.forEach((discordClient: DiscordClient) => promises.push(discordClient.tick()));
+        discordClients.forEach((discordClient: IDiscordClient) => promises.push(discordClient.tick()));
         await Promise.all(promises);
     }
 

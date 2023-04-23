@@ -1,57 +1,57 @@
-export interface TwitchConfig {
+export interface ITwitchConfig {
     clientId: string;
     clientSecret: string;
     checkIntervalMs: number;
 }
 
-export interface DDataMessageLinkBtnConfig {
+export interface IDDataMessageLinkBtnConfig {
     offline: boolean;
     online: boolean;
 }
 
-export interface DDataEventConfig {
+export interface IDDataEventConfig {
     active: boolean;
 }
 
-export interface DDataMessageConfig {
+export interface IDDataMessageConfig {
     active: boolean;
-    linkBtn: DDataMessageLinkBtnConfig;
+    linkBtn: IDDataMessageLinkBtnConfig;
 }
 
-export interface DiscordDataConfig {
-    event: DDataEventConfig;
-    message: DDataMessageConfig;
+export interface IDiscordDataConfig {
+    event: IDDataEventConfig;
+    message: IDDataMessageConfig;
 }
 
-export interface DiscordData {
+export interface IDiscordData {
     discordGuildId: string;
     discordChannelId: string;
     discordRoleMentionId: string;
     twitchChannelName: string;
-    config: DiscordDataConfig;
+    config: IDiscordDataConfig;
 }
 
-export interface DiscordInteractionCommand {
+export interface IDiscordInteractionCommand {
     active: boolean;
     applicationId: string;
     applicationPublicKey: string;
     applicationEndpointPort: number;
 }
 
-export interface DiscordConfig {
+export interface IDiscordConfig {
     botToken: string;
-    interactionCommand: DiscordInteractionCommand;
-    discords: DiscordData[];
+    interactionCommand: IDiscordInteractionCommand;
+    discords: IDiscordData[];
 }
 
-export interface LoggerConfig {
+export interface ILoggerConfig {
     debugLevel: boolean;
     logFile: string;
 }
 
 export interface IConfig {
-    logger: LoggerConfig;
+    logger: ILoggerConfig;
     i18n: string;
-    twitch: TwitchConfig;
-    discord: DiscordConfig;
+    twitch: ITwitchConfig;
+    discord: IDiscordConfig;
 }

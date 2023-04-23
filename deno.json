@@ -8,7 +8,7 @@
     "dayjs_relativeTime": "https://cdn.skypack.dev/dayjs@v1.11.6/plugin/relativeTime"
   },
   "tasks": {
-    "start": "deno run --allow-net --allow-write --allow-read src/app.ts",
-    "dev": "deno run --allow-net --allow-write --allow-read --watch src/app.ts"
+    "start": "deno run --allow-net --allow-write --allow-read --check src/app.ts",
+    "dev": "deno run --allow-net --allow-write --allow-read --check --watch src/app.ts"
   }
 }
