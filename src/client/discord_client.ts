@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
-import { liveCommandName } from '../interactionServer.ts';
+import { liveCommandName } from '../gateway/discord_gateway.ts';
 import * as cache from '../misc/cache.ts';
 import { getI18n } from '../misc/i18n.ts';
 import * as Logger from '../misc/logger.ts';

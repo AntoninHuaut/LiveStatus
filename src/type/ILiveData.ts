@@ -67,7 +67,7 @@ export function createLiveData(userName: string): ILiveData {
                 const res = await fetch(igdbURL);
                 gameImageUrl = res.redirected ? twitchURL : igdbURL;
             } catch (err) {
-                Logger.error(`[CLive::setGameImageUrl] Error checking game IGDB: "${igdbURL}" error:\n${err.stack}`);
+                Logger.error(`[ILiveData::setGameImageUrl] Error checking game IGDB: "${igdbURL}" error:\n${err.stack}`);
             }
         },
         liveUrl: () => `https://twitch.tv/${userName}`,

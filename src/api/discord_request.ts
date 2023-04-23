@@ -37,9 +37,9 @@ export async function editApplicationCommand(command: IEditApplicationCommand, a
     )) as IApplicationCommand;
 }
 
-// export async function deleteApplicationCommand(applicationId: string, guildId: string, commandId: string) {
-//     return (await fetchDiscord(`applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, HttpMethod.DELETE)).status === 204;
-// }
+export async function respondToInteraction(interactionId: string, interactionToken: string, body: { type: number; data: Record<string, any> }) {
+    return (await fetchDiscord(`interactions/${interactionId}/${interactionToken}/callback`, HttpMethod.POST, body)).status === 204;
+}
 
 function fetchDiscord(apiPath: string, httpMethod: HttpMethod, body?: Record<string, any>) {
     const headers: Headers = new Headers({
