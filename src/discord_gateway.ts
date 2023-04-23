@@ -1,9 +1,9 @@
-import { createApplicationCommand, editApplicationCommand, getApplicationCommands, respondToInteraction } from '../api/discord_request.ts';
-import { config, discordClients } from '../app.ts';
-import * as cache from '../misc/cache.ts';
-import { getI18n } from '../misc/i18n.ts';
-import * as Logger from '../misc/logger.ts';
-import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from '../type/ICommand.ts';
+import { createApplicationCommand, editApplicationCommand, getApplicationCommands, respondToInteraction } from './api/discord_request.ts';
+import { config, discordClients } from './app.ts';
+import * as cache from './misc/cache.ts';
+import { getI18n } from './misc/i18n.ts';
+import * as Logger from './misc/logger.ts';
+import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from './type/ICommand.ts';
 
 const DISCORD_GATEWAY_URL = 'wss://gateway.discord.gg';
 
@@ -37,7 +37,7 @@ export function startDiscordGateway() {
         stopHearbeat();
         startDiscordGateway();
     };
-    ws.onerror = (err) => Logger.error(`[gateway::startDiscordGateway] ${err.toString()}`);
+    ws.onerror = (err) => Logger.error(`[discord_gateway::startDiscordGateway] ${err.toString()}`);
     ws.onmessage = async (msg) => {
         const json = JSON.parse(msg.data);
         if (!('op' in json)) return;
@@ -168,6 +168,6 @@ function handleInteraction(jsonBody: any) {
             data: { flags: 64, ...discordClient.getBodyMessage(cache.getTwitch(discordClient.getDiscordData().twitchChannelName)) },
         });
     } catch (error) {
-        Logger.error(`[gateway::handleInteraction] ${error.stack}`);
+        Logger.error(`[discord_gateway::handleInteraction] ${error.stack}`);
     }
 }
