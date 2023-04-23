@@ -56,11 +56,11 @@ export const liveCommandName = 'live';
 const liveCommand: Record<string, IApplicationCommand | null> = {};
 
 async function setupCommands(applicationId: string) {
-    const guildIdToStreamers = new Map<string, string[]>();
+    const guildIdToStreamers = new Map<string, Set<string>>();
     config.discord.discords.forEach((discord) => {
         if (discord.discordGuildId && discord.twitchChannelName) {
-            const streamers = guildIdToStreamers.get(discord.discordGuildId) ?? [];
-            streamers.push(discord.twitchChannelName);
+            const streamers = guildIdToStreamers.get(discord.discordGuildId) ?? new Set();
+            streamers.add(discord.twitchChannelName);
             guildIdToStreamers.set(discord.discordGuildId, streamers);
         }
     });
@@ -68,7 +68,7 @@ async function setupCommands(applicationId: string) {
     for (const entry of guildIdToStreamers) {
         const guildId = entry[0];
         const streamers = entry[1];
-        if (!guildId || streamers.length === 0) continue;
+        if (!guildId || streamers.size === 0) continue;
 
         try {
             const commands = await getApplicationCommands(applicationId, guildId);
@@ -88,12 +88,12 @@ async function setupCommands(applicationId: string) {
                         description: getI18n('discord.liveCommand.description', {}),
                         type: 3,
                         required: true,
-                        choices: streamers.map((streamer) => ({ name: streamer, value: streamer })),
+                        choices: [...streamers].map((streamer) => ({ name: streamer, value: streamer })),
                     },
                 ],
             };
 
-            if (streamers.length === 1) {
+            if (streamers.size === 1) {
                 partialLiveCommand.options = [];
             }
 
