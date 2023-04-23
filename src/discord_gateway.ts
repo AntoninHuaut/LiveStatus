@@ -1,19 +1,61 @@
-import { sign_detached_verify } from 'nacl/src/sign.ts';
-import { Application } from 'oak/mod.ts';
-
-import { createApplicationCommand, editApplicationCommand, getApplicationCommands } from './api/discord_request.ts';
+import { createApplicationCommand, editApplicationCommand, getApplicationCommands, respondToInteraction } from './api/discord_request.ts';
 import { config, discordClients } from './app.ts';
 import * as cache from './misc/cache.ts';
 import { getI18n } from './misc/i18n.ts';
 import * as Logger from './misc/logger.ts';
 import { IApplicationCommand, ICreateApplicationCommand, IEditApplicationCommand } from './type/ICommand.ts';
 
+const DISCORD_GATEWAY_URL = 'wss://gateway.discord.gg';
+
+export function startDiscordGateway() {
+    const ws = new WebSocket(DISCORD_GATEWAY_URL);
+    let hearbeatInterval: number | null = null;
+
+    const init = (heartbeat_interval: number) => {
+        if (hearbeatInterval) return;
+
+        hearbeatInterval = setInterval(() => {
+            ws.send(JSON.stringify({ op: 1, d: null }));
+        }, heartbeat_interval);
+
+        ws.send(
+            JSON.stringify({
+                op: 2,
+                d: {
+                    token: config.discord.botToken,
+                    properties: { os: Deno.build.os, browser: 'deno', device: 'deno' },
+                    compress: false,
+                },
+            })
+        );
+    };
+    const stopHearbeat = () => hearbeatInterval && clearInterval(hearbeatInterval);
+
+    ws.onopen = () => Logger.info('Discord gateway opened');
+    ws.onclose = () => {
+        Logger.info('Discord gateway closed');
+        stopHearbeat();
+        startDiscordGateway();
+    };
+    ws.onerror = (err) => Logger.error(`[discord_gateway::startDiscordGateway] ${err.toString()}`);
+    ws.onmessage = async (msg) => {
+        const json = JSON.parse(msg.data);
+        if (!('op' in json)) return;
+
+        if (json.op === 10) init(json.d.heartbeat_interval);
+        else if (json.t === 'READY') {
+            await setupCommands(json.d.application.id);
+            Logger.info('Discord gateway ready to receive commands');
+        } else if (json.t === 'INTERACTION_CREATE') {
+            await handleInteraction(json.d);
+        }
+    };
+}
+
 export const liveCommandName = 'live';
 const liveCommand: Record<string, IApplicationCommand | null> = {};
 
-async function setupInteraction() {
-    const applicationId = config.discord.interactionCommand.applicationId;
-
+async function setupCommands(applicationId: string) {
     const guildIdToStreamers = new Map<string, string[]>();
     config.discord.discords.forEach((discord) => {
         if (discord.discordGuildId && discord.twitchChannelName) {
@@ -75,96 +117,57 @@ async function setupInteraction() {
                 }
             }
         } catch (error) {
-            Logger.error(error);
+            Logger.error(`Failed to setup live command (guildId = ${guildId}): \n${error.stack}`);
         }
     }
-}
-
-export async function startInteractionServer() {
-    await setupInteraction();
-
-    return new Promise<void>((resolve) => {
-        const app = new Application();
-        const port = config.discord.interactionCommand.applicationEndpointPort;
-        const publicKey = config.discord.interactionCommand.applicationPublicKey;
-
-        const convert = (hex: string) => new Uint8Array(hex.match(/.{1,2}/g)!.map((val) => parseInt(val, 16)));
-        app.use(async (ctx) => {
-            try {
-                const signature = ctx.request.headers.get('X-Signature-Ed25519') ?? '';
-                const timestamp = ctx.request.headers.get('X-Signature-Timestamp') ?? '';
-
-                const body = await ctx.request.body({ type: 'text' }).value;
-
-                const isVerified = sign_detached_verify(new TextEncoder().encode(timestamp + body), convert(signature), convert(publicKey));
-
-                if (!isVerified) {
-                    ctx.response.status = 401;
-                    ctx.response.body = 'Invalid request signature';
-                    return;
-                }
-
-                const jsonBody = JSON.parse(body);
-                if (jsonBody.type === 1) {
-                    ctx.response.status = 200;
-                    ctx.response.body = {
-                        type: 1,
-                    };
-                } else if (jsonBody.type === 2) {
-                    ctx.response.status = 200;
-                    ctx.response.body = {
-                        type: 4,
-                        data: handleInteraction(jsonBody),
-                    };
-                }
-            } catch (_) {
-                ctx.response.status = 400;
-            }
-        });
-
-        app.addEventListener('listen', () => {
-            Logger.info(`Interaction server listening on :${port}`);
-            resolve();
-        });
-
-        app.listen({ port: port });
-    });
 }
 
 function handleInteraction(jsonBody: any) {
     try {
         const data = jsonBody.data;
+        const interactionId = jsonBody.id;
+        const interactionToken = jsonBody.token;
         const guildId = jsonBody.guild_id;
-        if (data.id === liveCommand[guildId]?.id) {
-            const options = data.options;
-            let streamerName = '';
-            if (options && options.length === 1) {
-                streamerName = options[0].value;
-            } else {
-                const guild = config.discord.discords.find((discord) => discord.discordGuildId === guildId);
-                if (guild) {
-                    streamerName = guild.twitchChannelName;
-                }
-            }
 
-            if (!streamerName) {
-                return {
-                    content: getI18n('discord.liveCommand.streamerNotFound', {}),
-                    flags: 64,
-                };
-            }
+        if (!interactionId || !interactionToken || data.id !== liveCommand[guildId]?.id) return;
 
-            const discordClient = discordClients.find((client) => client.getDiscordData().twitchChannelName === streamerName);
-            if (discordClient) {
-                return { flags: 64, ...discordClient.getBodyMessage(cache.getTwitch(discordClient.getDiscordData().twitchChannelName)) };
+        const options = data.options;
+        let streamerName = '';
+        if (options && options.length === 1) {
+            streamerName = options[0].value;
+        } else {
+            const guild = config.discord.discords.find((discord) => discord.discordGuildId === guildId);
+            if (guild) {
+                streamerName = guild.twitchChannelName;
             }
         }
-    } catch (error) {
-        Logger.error(error);
-    }
 
-    return {
-        content: getI18n('discord.liveCommand.appError', {}),
-        flags: 64,
-    };
+        if (!streamerName) {
+            return respondToInteraction(interactionId, interactionToken, {
+                type: 4,
+                data: {
+                    content: getI18n('discord.liveCommand.streamerNotFound', {}),
+                    flags: 64,
+                },
+            });
+        }
+
+        const discordClient = discordClients.find((client) => client.getDiscordData().twitchChannelName === streamerName);
+        if (!discordClient) {
+            return respondToInteraction(interactionId, interactionToken, {
+                type: 4,
+                data: {
+                    content: getI18n('discord.liveCommand.appError', {}),
+                    flags: 64,
+                },
+            });
+        }
+
+        return respondToInteraction(interactionId, interactionToken, {
+            type: 4,
+            data: { flags: 64, ...discordClient.getBodyMessage(cache.getTwitch(discordClient.getDiscordData().twitchChannelName)) },
+        });
+    } catch (error) {
+        Logger.error(`[discord_gateway::handleInteraction] ${error.stack}`);
+    }
 }

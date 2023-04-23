@@ -17,6 +17,7 @@ export function fetchURL(url: string, httpMethod: HttpMethod, headers: Headers, 
         headers: headers,
     };
     if (body != null) {
+        params.headers.set('Content-Type', 'application/json');
         params.body = JSON.stringify(body);
     }
     return fetch(url, params);

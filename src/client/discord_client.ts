@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import { createEvent, createMessage, deleteEvent, editEvent, editMessage } from '../api/discord_request.ts';
-import { liveCommandName } from '../interactionServer.ts';
+import { liveCommandName } from '../discord_gateway.ts';
 import * as cache from '../misc/cache.ts';
 import { getI18n } from '../misc/i18n.ts';
 import * as Logger from '../misc/logger.ts';
@@ -41,6 +41,7 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
             setEventId('');
         }
     };
+
     const onlineTick = async (liveData: ILiveData) => {
         lastOnlineTime = Date.now();
 

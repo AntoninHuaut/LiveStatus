@@ -32,8 +32,7 @@ Open the config.jsonc file with your favorite text editor
         debugLevel: false, // Log messages with DEBUG level                     
         logFile: "app.log" // Log file name
     },
-    i18n: "en", // Messages language (resource/i18n/messages_${language}.json).
-                // The language must exist in this list: https://github.com/iamkun/dayjs/tree/dev/src/locale
+    i18n: "en", // Messages language (resource/i18n/messages_${language}.json). The language must exist in this list: https://github.com/iamkun/dayjs/tree/dev/src/locale
     twitch: {
         // Go to https://dev.twitch.tv/console/apps and create an application (You can put http://localhost/ in OAuth redirection URL)
         clientId: "<Application Client Id>",
@@ -45,14 +44,6 @@ Open the config.jsonc file with your favorite text editor
         // Add your bot on your server: https://discord.com/api/oauth2/authorize?client_id=<Insert your bot Application ID here>&permissions=8590445568&scope=bot 
         // Make sure your robot has the permissions to publish in the channel
         botToken: "<discord bot token>",
-        // Activating the interaction allows you to perform the /live command and get the live embed
-        // This requires some configuration on the Discord applications site
-        interactionCommand: {
-            active: false,
-            applicationId: "<Application Id>", // Id of your application on the Discord developer portal
-            applicationPublicKey: "<Application Public Key>", // Public key of your application on the Discord developer portal
-            applicationEndpointPort: 4100 // A web server is created by the application, the address to point to this server must be filled in on the Discord developer portal
-        },
         // List of discord, make sur your discord account is in developer mode to easily copy guildId/channelId/roleId (Settings -> Advanced -> Developer mode)
         discords: [{
             discordGuildId: "<guildId>",
