@@ -1,4 +1,4 @@
-import * as Colors from 'fmt/colors.ts';
+import * as Colors from 'std/fmt/colors.ts';
 
 import { config } from '../app.ts';
 

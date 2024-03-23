@@ -1,14 +1,18 @@
 {
-  "version": "2",
+  "version": "3",
   "remote": {
+    "https://cdn.skypack.dev/-/dayjs@v1.11.10-BxxzuhFNawSjQut5bjUi/dist=es2019,mode=imports/optimized/dayjs.js": "596a73ea537b1d5350ff8ccdb35fdb86ed5b8c50112f8d2ceabeda4ab33f0458",
+    "https://cdn.skypack.dev/-/dayjs@v1.11.10-BxxzuhFNawSjQut5bjUi/dist=es2019,mode=imports/unoptimized/plugin/relativeTime.js": "d32328302db06a2746a2148f15f00941225aaccdd5d4d17136fd8ff854124c32",
     "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/optimized/dayjs.js": "8109789140b7e7cff118fcf550cb085c7ca0a143dc63ccddd31ccc70d97713f1",
     "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/unoptimized/locale/fr.js": "d0b5d3b89c0342f890aae122acd75bfe85f8f20543e848fa978223ed1f562266",
-    "https://cdn.skypack.dev/-/dayjs@v1.11.6-77Jm7cE3hNuQn3XDVXyF/dist=es2019,mode=imports/unoptimized/plugin/relativeTime.js": "d32328302db06a2746a2148f15f00941225aaccdd5d4d17136fd8ff854124c32",
-    "https://cdn.skypack.dev/dayjs@v1.11.6/": "3c5ac7fdc0283a0ee9b70d24991974043f5d2ae898aeb6debd2e2bfca9d4a28a",
+    "https://cdn.skypack.dev/dayjs@v1.11.10/": "73d8aacc3ccee9f25f6baefe7cfb63468148cc07a3b654fd9157647b709d41eb",
+    "https://cdn.skypack.dev/dayjs@v1.11.10/plugin/relativeTime": "ecbe9117db259d9e1a34ea23e217fe8e5e460e2d6702608638c72c9724a7d1b2",
     "https://cdn.skypack.dev/dayjs@v1.11.6/locale/fr": "f5a1b691496ddea3b2f56456a868c5974cb6d651e1e9b1275d1e09d9d359f348",
-    "https://cdn.skypack.dev/dayjs@v1.11.6/plugin/relativeTime": "1eb81621be72afa70a629b39e7af2840f400f74de47d2a352ad5131d29ae8a7e",
-    "https://deno.land/std@0.178.0/_util/asserts.ts": "178dfc49a464aee693a7e285567b3d0b555dc805ff490505a8aae34f9cfb1462",
-    "https://deno.land/std@0.178.0/encoding/jsonc.ts": "02b86115d2b812f26789481ebcf4748171e8ece6514b60243b3733e2c200876a",
-    "https://deno.land/std@0.178.0/fmt/colors.ts": "938c5d44d889fb82eff6c358bea8baa7e85950a16c9f6dae3ec3a7a729164471"
+    "https://deno.land/std@0.220.1/assert/assert.ts": "bec068b2fccdd434c138a555b19a2c2393b71dfaada02b7d568a01541e67cdc5",
+    "https://deno.land/std@0.220.1/assert/assertion_error.ts": "9f689a101ee586c4ce92f52fa7ddd362e86434ffdf1f848e45987dc7689976b8",
+    "https://deno.land/std@0.220.1/fmt/colors.ts": "d239d84620b921ea520125d778947881f62c50e78deef2657073840b8af9559a",
+    "https://deno.land/std@0.220.1/json/common.ts": "33f1a4f39a45e2f9f357823fd0b5cf88b63fb4784b8c9a28f8120f70a20b23e9",
+    "https://deno.land/std@0.220.1/jsonc/mod.ts": "1756f094e00894ec27416b4fcccbcf445e73892a83cf1937de3aad7de2d5da7c",
+    "https://deno.land/std@0.220.1/jsonc/parse.ts": "06fbe10f0bb0cba684f7902bf7de5126b16eb0e5a82220c98a4b86675c7f9cff"
   }
 }
