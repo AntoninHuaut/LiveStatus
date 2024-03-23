@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs_relativeTime';
-import { parse } from 'encoding/jsonc.ts';
+import { parse } from 'std/jsonc/mod.ts';
 
 import { createDiscordClient, IDiscordClient } from './client/discord_client.ts';
 import { createTwitchRunnable, TwitchRunnable } from './client/twitch_client.ts';
