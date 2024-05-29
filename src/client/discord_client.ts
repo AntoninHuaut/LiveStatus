@@ -7,7 +7,13 @@ import { getI18n } from '../misc/i18n.ts';
 import * as Logger from '../misc/logger.ts';
 import { IDiscordData } from '../type/IConfig.ts';
 import { IEventBody, IMessageBody, IMessageEmbed } from '../type/IDiscord.ts';
-import { GAME_THUMBNAIL_HEIGHT, GAME_THUMBNAIL_WIDTH, ILiveData, STREAM_IMAGE_HEIGHT, STREAM_IMAGE_WIDTH } from '../type/ILiveData.ts';
+import {
+    GAME_THUMBNAIL_HEIGHT,
+    GAME_THUMBNAIL_WIDTH,
+    ILiveData,
+    STREAM_IMAGE_HEIGHT,
+    STREAM_IMAGE_WIDTH,
+} from '../type/ILiveData.ts';
 
 const COLOR_OFFLINE = 9807270;
 const COLOR_ONLINE = 10181046;
@@ -124,7 +130,7 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
             } else {
                 const jsonResponse = await editMessage(discordData.discordChannelId, messageId, body);
                 if (jsonResponse.code && jsonResponse.code >= 10000) {
-                    setMessageId(' ');
+                    setMessageId('');
                 }
             }
         } catch (err) {
