@@ -1,8 +1,8 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@0.220.1/",
-    "dayjs": "https://cdn.skypack.dev/dayjs@v1.11.10/",
-    "dayjs_relativeTime": "https://cdn.skypack.dev/dayjs@v1.11.10/plugin/relativeTime"
+    "std/": "https://deno.land/std@0.224.0/",
+    "dayjs": "https://cdn.skypack.dev/dayjs@v1.11.11/",
+    "dayjs_relativeTime": "https://cdn.skypack.dev/dayjs@v1.11.11/plugin/relativeTime"
   },
   "tasks": {
     "start": "deno run --allow-net --allow-write --allow-read --check src/app.ts",

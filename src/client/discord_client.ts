@@ -111,7 +111,11 @@ export function createDiscordClient(discordData: IDiscordData, checkIntervalMs: 
             const body = getBodyMessage(liveData);
             const roleId = discordData.discordRoleMentionId;
             if (!messageId && roleId?.trim()) {
-                body.content = `<@&${roleId}>`;
+                if (roleId === discordData.discordGuildId) {
+                    body.content = '@everyone';
+                } else {
+                    body.content = `<@&${roleId}>`;
+                }
             }
 
             if (!messageId) {
