@@ -1,6 +1,5 @@
 .idea/
-.vscode/
-.scannerwork/
-location_data/
-/app.log
-/config.jsonc
+tmp/
+storage/
+*.iml
+config.yaml

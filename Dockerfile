@@ -1,11 +1,14 @@
-FROM denoland/deno:alpine-1.43.6
+FROM golang:1.22-alpine
 
-EXPOSE 4100
+EXPOSE 8080
 
 WORKDIR /app
 
-ADD resource resource
-ADD src src
-ADD deno.json deno.json
+COPY go.mod go.sum ./
+RUN go mod download
 
-CMD [ "task", "start" ]
+ADD . .
+
+RUN go build -o /livestatus
+
+CMD [ "/livestatus" ]

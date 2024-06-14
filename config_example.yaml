@@ -1,0 +1,20 @@
+twitch:
+  clientId: ""
+  clientSecret: ""
+  webhookPort: 8080
+  webhookSecret: ""
+  webhookUrl: ""
+
+discord:
+  token: ""
+  servers:
+    "<guildId>":
+      - twitchId: ""
+        lang: "en"
+        event:
+          active: true
+        message:
+          active: true
+          buttons: true
+          channelId: ""
+          roleMentionId: "<roleId|everyone|here>"

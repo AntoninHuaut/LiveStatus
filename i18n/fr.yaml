@@ -1,0 +1,41 @@
+discord:
+  event:
+    title: "%streamer% est en live"
+    description: ":information_source: **%title%**\n\n:video_game: **%game%**"
+
+  liveCommand:
+    description: "Affiche les informations du live"
+    option:
+      name: "streameur"
+      description: "Le nom du streameur"
+
+  embed:
+    online:
+      title: ":red_circle: %streamer% est en live sur Twitch !"
+      description: ""
+      button:
+        emoji: "📢"
+        label: "Accéder au live"
+      fields:
+        - name: "Titre"
+          value: "%title%"
+          inline: false
+        - name: "Jeu"
+          value: "%game%"
+          inline: true
+        - name: "Depuis"
+          value: "%startedAt%"
+          inline: true
+    offline:
+      title: ":white_circle: %streamer% était en live sur Twitch"
+      description: "**Le live est terminé**"
+      button:
+        emoji: "🎬"
+        label: "Accéder à la chaîne"
+      fields:
+        - name: "Titre"
+          value: "%title%"
+          inline: false
+        - name: "Jeu"
+          value: "%game%"
+          inline: true
