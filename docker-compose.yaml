@@ -1,7 +1,7 @@
 services:
-  livestatus_go:
-    image: ghcr.io/antoninhuaut/livestatusgo:master
-    container_name: clivestatus_go
+  livestatus:
+    image: ghcr.io/antoninhuaut/livestatus:master
+    container_name: clivestatus
     restart: unless-stopped
     volumes:
       - ./storage:/app/storage
