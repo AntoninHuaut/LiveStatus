@@ -20,5 +20,5 @@ const (
 
 var (
 	CustomMentions    = []string{everyoneMention, hereMention}
-	EventStatusToSkip = []discordgo.GuildScheduledEventStatus{discordgo.GuildScheduledEventStatusCompleted, discordgo.GuildScheduledEventStatusCompleted}
+	EventStatusToSkip = []discordgo.GuildScheduledEventStatus{discordgo.GuildScheduledEventStatusCanceled, discordgo.GuildScheduledEventStatusCompleted}
 )

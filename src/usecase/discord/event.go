@@ -51,34 +51,35 @@ func (m event) HandleLiveState(state domain.LiveState) error {
 				}
 			}
 
-			// Skip if the stream is offline and there is no event to edit
-			if dbEventId == "" && !state.IsOnline() {
-				return nil
-			}
+			if state.IsOnline() {
+				// Send or edit the event
+				var newEvent *discordgo.GuildScheduledEvent
+				if dbEventId != "" {
+					newEvent, err = m.dcInstance.GuildScheduledEventEdit(guildId, dbEventId, m.getEventParams(notifier.Lang, state))
+				} else {
+					eventParams := m.getEventParams(notifier.Lang, state)
+					startDate := time.Now().Add(time.Second * 10) // Add 10 seconds to the current time to deal with time sync issues
+					eventParams.ScheduledStartTime = &startDate
+					newEvent, err = m.dcInstance.GuildScheduledEventCreate(guildId, eventParams)
+				}
+				if err != nil {
+					errs = append(errs, errors.New(fmt.Sprintf("failed to send discordEvent %s in guild %s: %v", dbEventId, guildId, err)))
+				}
 
-			// Send or edit the event
-			var newEvent *discordgo.GuildScheduledEvent
-			if dbEventId != "" {
-				newEvent, err = m.dcInstance.GuildScheduledEventEdit(guildId, dbEventId, m.getEventParams(notifier.Lang, state))
-			} else {
-				eventParams := m.getEventParams(notifier.Lang, state)
-				startDate := time.Now().Add(time.Second * 10) // Add 10 seconds to the current time to deal with time sync issues
-				eventParams.ScheduledStartTime = &startDate
-				newEvent, err = m.dcInstance.GuildScheduledEventCreate(guildId, eventParams)
-			}
-			if err != nil {
-				errs = append(errs, errors.New(fmt.Sprintf("failed to send discordEvent %s in guild %s: %v", dbEventId, guildId, err)))
-			}
+				// Save the new event id
+				if state.IsOnline() && newEvent != nil {
+					dbEventId = newEvent.ID
+				} else {
+					dbEventId = ""
+				}
 
-			// Save the new event id
-			if state.IsOnline() && newEvent != nil {
-				dbEventId = newEvent.ID
-			} else {
-				dbEventId = ""
-			}
-
-			if err = m.database.SetEventId(state.TwitchId, guildId, dbEventId); err != nil {
-				errs = append(errs, errors.New(fmt.Sprintf("failed to save newEventId in guild %s: %v", guildId, err)))
+				if err = m.database.SetEventId(state.TwitchId, guildId, dbEventId); err != nil {
+					errs = append(errs, errors.New(fmt.Sprintf("failed to save newEventId in guild %s: %v", guildId, err)))
+				}
+			} else if dbEventId != "" {
+				if err = m.dcInstance.GuildScheduledEventDelete(guildId, dbEventId); err != nil {
+					errs = append(errs, errors.New(fmt.Sprintf("failed to delete discordEvent %s in guild %s: %v", dbEventId, guildId, err)))
+				}
 			}
 		}
 	}
