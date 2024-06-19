@@ -3,6 +3,7 @@ module LiveStatus
 go 1.22
 
 require (
+	github.com/avast/retry-go/v4 v4.6.0
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dnsge/twitch-eventsub-bindings v1.2.2
 	github.com/dnsge/twitch-eventsub-framework v1.3.2

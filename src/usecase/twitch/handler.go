@@ -5,6 +5,7 @@ import (
 	esb "github.com/dnsge/twitch-eventsub-bindings"
 	esf "github.com/dnsge/twitch-eventsub-framework"
 	"log"
+	"time"
 )
 
 type Handler interface {
@@ -21,15 +22,15 @@ func NewHandler(mapTwitchIdsToState map[string]*domain.LiveState, twClient Clien
 
 	subHandler.HandleChannelUpdate = func(headers *esb.ResponseHeaders, event *esb.EventChannelUpdate) {
 		log.Printf("HandleChannelUpdate: %s\n", event.BroadcasterUserID)
-		h.updateLiveState(event.BroadcasterUserID)
+		h.updateLiveState(event.BroadcasterUserID, headers.MessageType)
 	}
 	subHandler.HandleStreamOnline = func(headers *esb.ResponseHeaders, event *esb.EventStreamOnline) {
 		log.Printf("HandleStreamOnline: %s\n", event.BroadcasterUserID)
-		h.updateLiveState(event.BroadcasterUserID)
+		h.updateLiveState(event.BroadcasterUserID, headers.MessageType)
 	}
 	subHandler.HandleStreamOffline = func(headers *esb.ResponseHeaders, event *esb.EventStreamOffline) {
 		log.Printf("HandleStreamOffline: %s\n", event.BroadcasterUserID)
-		h.updateLiveState(event.BroadcasterUserID)
+		h.updateLiveState(event.BroadcasterUserID, headers.MessageType)
 	}
 
 	return h
@@ -45,7 +46,7 @@ func (h *handler) GetHandler() *esf.SubHandler {
 	return h.handler
 }
 
-func (h *handler) updateLiveState(twitchId string) {
+func (h *handler) updateLiveState(twitchId string, twitchNotificationType string) {
 	go func() {
 		if liveState, ok := h.mapTwitchIdsToState[twitchId]; ok {
 			streams, err := h.twClient.GetStreams([]string{twitchId})
@@ -57,8 +58,22 @@ func (h *handler) updateLiveState(twitchId string) {
 			var setLiveStateErr error
 			if stream, ok := streams[twitchId]; ok {
 				setLiveStateErr = liveState.SetLiveState(&stream)
+
+				if twitchNotificationType == domain.StreamOffline {
+					log.Printf("  WARN updateLiveState SetLiveState online (twitchId=%s) but received StreamOffline, streams: %+v\n", twitchId, streams)
+					h.rerunLater(twitchId, time.Minute)
+				} else {
+					log.Printf("  updateLiveState SetLiveState online (twitchId=%s)\n", twitchId)
+				}
 			} else {
 				setLiveStateErr = liveState.SetLiveState(nil)
+
+				if twitchNotificationType == domain.StreamOnline {
+					log.Printf("  WARN updateLiveState SetLiveState offline (twitchId=%s) but received StreamOnline, streams: %+v\n", twitchId, streams)
+					h.rerunLater(twitchId, time.Minute)
+				} else {
+					log.Printf("  updateLiveState SetLiveState offline (twitchId=%s)\n", twitchId)
+				}
 			}
 
 			if setLiveStateErr != nil {
@@ -68,5 +83,12 @@ func (h *handler) updateLiveState(twitchId string) {
 		} else {
 			log.Printf("ERROR updateLiveState liveState not found (twitchId=%s)\n", twitchId)
 		}
+	}()
+}
+
+func (h *handler) rerunLater(twitchId string, delay time.Duration) {
+	go func() {
+		time.Sleep(delay)
+		h.updateLiveState(twitchId, "")
 	}()
 }

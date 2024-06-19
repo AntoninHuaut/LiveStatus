@@ -5,9 +5,13 @@ import "time"
 const (
 	twitchTypeLive = "live"
 
-	GetTwitchAppTokenUrl = "https://id.twitch.tv/oauth2/token"
-	GetTwitchStreamsUrl  = "https://api.twitch.tv/helix/streams"
-	GetTwitchUsersUrl    = "https://api.twitch.tv/helix/users"
+	GetTwitchAppTokenUrl      = "https://id.twitch.tv/oauth2/token"
+	GetTwitchStreamsUrl       = "https://api.twitch.tv/helix/streams"
+	GetTwitchUsersUrl         = "https://api.twitch.tv/helix/users"
+	TwitchClientIdHeader      = "Client-Id"
+	TwitchAuthorizationHeader = "Authorization"
+
+	RetryMaxAttempts = 5
 )
 
 type TwitchUsersResponse struct {

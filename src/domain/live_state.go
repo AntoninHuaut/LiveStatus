@@ -19,13 +19,13 @@ const (
 	GameThumbnailWidth  = 288
 	GameThumbnailHeight = 384
 
-	channelUpdate = "channel.update"
-	streamOnline  = "stream.online"
-	streamOffline = "stream.offline"
+	ChannelUpdate = "channel.update"
+	StreamOnline  = "stream.online"
+	StreamOffline = "stream.offline"
 )
 
 var (
-	SubscriptionList = []string{channelUpdate, streamOnline, streamOffline}
+	SubscriptionList = []string{ChannelUpdate, StreamOnline, StreamOffline}
 )
 
 type LiveState struct {
