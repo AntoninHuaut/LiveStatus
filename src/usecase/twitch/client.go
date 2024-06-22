@@ -144,5 +144,5 @@ func createTwitchRequest[T any](method string, url string, headers map[string]st
 			return nil, err
 		}
 		return data, nil
-	}, retry.Attempts(domain.RetryMaxAttempts))
+	}, retry.Attempts(domain.RetryMaxAttempts), retry.Delay(domain.RetryDelay))
 }

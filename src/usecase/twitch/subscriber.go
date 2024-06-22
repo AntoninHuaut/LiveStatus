@@ -35,6 +35,9 @@ func (s *subscriber) GetSubscriptions() (*esb.RequestStatus, error) {
 
 func (s *subscriber) UnsubscribeAll() error {
 	subscriptions, err := s.GetSubscriptions()
+	if err != nil {
+		return err
+	}
 
 	for _, sub := range subscriptions.Data {
 		err = s.client.Unsubscribe(context.Background(), sub.ID)

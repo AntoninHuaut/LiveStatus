@@ -12,6 +12,7 @@ const (
 	TwitchAuthorizationHeader = "Authorization"
 
 	RetryMaxAttempts = 5
+	RetryDelay       = 5 * time.Second
 )
 
 type TwitchUsersResponse struct {
