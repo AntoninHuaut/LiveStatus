@@ -1,4 +1,4 @@
-package twitch
+package internal
 
 import (
 	"LiveStatus/src/domain"
@@ -14,23 +14,23 @@ import (
 
 const ()
 
-type Client interface {
+type TwitchClient interface {
 	GenerateTwitchAppToken() (*string, error)
 	GetTwitchUsers(userIds []string) (map[string]domain.TwitchUserResponse, error)
 	GetStreams(userIds []string) (map[string]domain.TwitchStreamResponse, error)
 }
 
-func NewClient(clientId string, clientSecret string) Client {
-	return &client{clientId: clientId, clientSecret: clientSecret}
+func NewTwitchClient(clientId string, clientSecret string) TwitchClient {
+	return &twitchClient{clientId: clientId, clientSecret: clientSecret}
 }
 
-type client struct {
+type twitchClient struct {
 	clientId     string
 	clientSecret string
 	appToken     *string
 }
 
-func (t *client) GenerateTwitchAppToken() (*string, error) {
+func (t *twitchClient) GenerateTwitchAppToken() (*string, error) {
 	form := url.Values{}
 	form.Add("client_id", t.clientId)
 	form.Add("client_secret", t.clientSecret)
@@ -60,7 +60,7 @@ func (t *client) GenerateTwitchAppToken() (*string, error) {
 	return appToken, nil
 }
 
-func (t *client) GetTwitchUsers(userIds []string) (map[string]domain.TwitchUserResponse, error) {
+func (t *twitchClient) GetTwitchUsers(userIds []string) (map[string]domain.TwitchUserResponse, error) {
 	if len(userIds) == 0 {
 		return make(map[string]domain.TwitchUserResponse), nil
 	}
@@ -89,7 +89,7 @@ func (t *client) GetTwitchUsers(userIds []string) (map[string]domain.TwitchUserR
 	return *mapIdToUser, nil
 }
 
-func (t *client) GetStreams(userIds []string) (map[string]domain.TwitchStreamResponse, error) {
+func (t *twitchClient) GetStreams(userIds []string) (map[string]domain.TwitchStreamResponse, error) {
 	if len(userIds) == 0 {
 		return make(map[string]domain.TwitchStreamResponse), nil
 	}

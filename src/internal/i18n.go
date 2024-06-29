@@ -1,4 +1,4 @@
-package usecase
+package internal
 
 import (
 	"LiveStatus/src/domain"

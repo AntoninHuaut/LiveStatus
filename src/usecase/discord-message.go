@@ -1,8 +1,8 @@
-package discord
+package usecase
 
 import (
 	"LiveStatus/src/domain"
-	"LiveStatus/src/usecase"
+	"LiveStatus/src/internal"
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-type Message interface {
+type DiscordMessage interface {
 	HandleLiveState(state domain.LiveState) error
 	getComponents(lang string, state domain.LiveState) []discordgo.MessageComponent
 	getEmbed(lang string, state domain.LiveState) *discordgo.MessageEmbed
 }
 
-func NewMessage(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, database usecase.Database, i18n usecase.I18n) Message {
-	return &message{
+func NewDiscordMessage(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, database internal.Database, i18n internal.I18n) DiscordMessage {
+	return &discordMessage{
 		database:   database,
 		dConfig:    dConfig,
 		dcInstance: dcInstance,
@@ -25,14 +25,14 @@ func NewMessage(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, dat
 	}
 }
 
-type message struct {
-	database   usecase.Database
+type discordMessage struct {
+	database   internal.Database
 	dConfig    domain.DiscordConfig
 	dcInstance *discordgo.Session
-	i18n       usecase.I18n
+	i18n       internal.I18n
 }
 
-func (m message) HandleLiveState(state domain.LiveState) error {
+func (m discordMessage) HandleLiveState(state domain.LiveState) error {
 	var errs []error
 	for guildId, notifiers := range m.dConfig.Servers {
 		for _, notifier := range notifiers {
@@ -113,7 +113,7 @@ func getContent(state domain.LiveState, notifier domain.DiscordNotifier) *string
 	return &str
 }
 
-func (m message) getComponents(lang string, state domain.LiveState) []discordgo.MessageComponent {
+func (m discordMessage) getComponents(lang string, state domain.LiveState) []discordgo.MessageComponent {
 	i18nMessages := m.i18n.GetMessages(lang).Discord.Embed
 	streamVariables := state.GetStreamVariables("R")
 	label := m.i18n.Format(i18nMessages.Offline.Button.Label, streamVariables)
@@ -138,7 +138,7 @@ func (m message) getComponents(lang string, state domain.LiveState) []discordgo.
 		}}
 }
 
-func (m message) getEmbed(lang string, state domain.LiveState) *discordgo.MessageEmbed {
+func (m discordMessage) getEmbed(lang string, state domain.LiveState) *discordgo.MessageEmbed {
 	i18nMessages := m.i18n.GetMessages(lang).Discord.Embed
 	streamVariables := state.GetStreamVariables("R")
 

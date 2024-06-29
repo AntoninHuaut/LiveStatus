@@ -1,18 +1,18 @@
-package discord
+package usecase
 
 import (
 	"LiveStatus/src/domain"
-	"LiveStatus/src/usecase"
+	"LiveStatus/src/internal"
 	"github.com/bwmarrin/discordgo"
 )
 
-type Command interface {
+type DiscordCommand interface {
 	InitCommands() error
 	GetSession() *discordgo.Session
 }
 
-func NewCommand(config *domain.Config, mapTwitchIdsToState map[string]*domain.LiveState, dcSession *discordgo.Session, dcMessage Message, i18n usecase.I18n) Command {
-	return &command{
+func NewDiscordCommand(config *domain.Config, mapTwitchIdsToState map[string]*domain.LiveState, dcSession *discordgo.Session, dcMessage DiscordMessage, i18n internal.I18n) DiscordCommand {
+	return &discordCommand{
 		config:              config,
 		dcSession:           dcSession,
 		dcMessage:           dcMessage,
@@ -21,15 +21,15 @@ func NewCommand(config *domain.Config, mapTwitchIdsToState map[string]*domain.Li
 	}
 }
 
-type command struct {
+type discordCommand struct {
 	config              *domain.Config
 	dcSession           *discordgo.Session
-	dcMessage           Message
-	i18n                usecase.I18n
+	dcMessage           DiscordMessage
+	i18n                internal.I18n
 	mapTwitchIdsToState map[string]*domain.LiveState
 }
 
-func (d *command) InitCommands() error {
+func (d *discordCommand) InitCommands() error {
 	d.dcSession.AddHandler(d.liveCommandHandler)
 
 	err := d.unregisterCommands()
@@ -45,11 +45,11 @@ func (d *command) InitCommands() error {
 	return nil
 }
 
-func (d *command) GetSession() *discordgo.Session {
+func (d *discordCommand) GetSession() *discordgo.Session {
 	return d.dcSession
 }
 
-func (d *command) unregisterCommands() error {
+func (d *discordCommand) unregisterCommands() error {
 	twitchIdsGroupByServer := d.config.GetAllTwitchLinkGroupByGuild()
 
 	for guildId, _ := range twitchIdsGroupByServer {
@@ -73,7 +73,7 @@ func (d *command) unregisterCommands() error {
 	return nil
 }
 
-func (d *command) registerCommands() error {
+func (d *discordCommand) registerCommands() error {
 	guildToTwitchLink := d.config.GetAllTwitchLinkGroupByGuild()
 
 	for guildId, twitchLinks := range guildToTwitchLink {
@@ -114,7 +114,7 @@ func (d *command) registerCommands() error {
 	return nil
 }
 
-func (d *command) liveCommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (d *discordCommand) liveCommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	options := i.ApplicationCommandData().Options
 	if len(options) == 0 {
 		return // Must never happen, option is required

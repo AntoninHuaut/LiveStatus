@@ -2,10 +2,10 @@ package boot
 
 import (
 	"LiveStatus/src/domain"
+	"LiveStatus/src/internal"
 	"LiveStatus/src/usecase"
-	"LiveStatus/src/usecase/discord"
-	"LiveStatus/src/usecase/twitch"
 	"context"
+	"github.com/avast/retry-go/v4"
 	"io"
 	"log"
 	"os"
@@ -35,20 +35,20 @@ func LoadConfig() (*domain.Config, error) {
 	return &config, nil
 }
 
-func Init(config *domain.Config) (twitch.Handler, *os.File, usecase.Database, error) {
+func Init(config *domain.Config) (usecase.TwitchHandler, *os.File, internal.Database, error) {
 	logFile, err := initLog()
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	twClient := twitch.NewClient(config.Twitch.ClientId, config.Twitch.ClientSecret)
+	twClient := internal.NewTwitchClient(config.Twitch.ClientId, config.Twitch.ClientSecret)
 
-	database := usecase.NewDatabase(domain.DatabaseFileName)
+	database := internal.NewDatabase(domain.DatabaseFileName)
 	if err := database.Open(); err != nil {
 		return nil, logFile, nil, err
 	}
 
-	i18n, err := usecase.NewI18n()
+	i18n, err := internal.NewI18n()
 	if err != nil {
 		return nil, logFile, database, err
 	}
@@ -78,17 +78,17 @@ func Init(config *domain.Config) (twitch.Handler, *os.File, usecase.Database, er
 		return nil, logFile, database, err
 	}
 
-	dcCron := discord.NewCron(dcEvent, mapTwitchIdsToState)
+	cron := usecase.NewCron(dcEvent, mapTwitchIdsToState, twClient)
 	if err != nil {
 		return nil, logFile, database, err
 	}
 
-	err = initCron(dcCron)
+	err = initCron(cron)
 	if err != nil {
 		return nil, logFile, database, err
 	}
 
-	handler := twitch.NewHandler(mapTwitchIdsToState, twClient, config.Twitch.WebhookSecret)
+	handler := usecase.NewTwitchHandler(mapTwitchIdsToState, twClient, config.Twitch.WebhookSecret)
 	return handler, logFile, database, nil
 }
 
@@ -108,16 +108,24 @@ func initLog() (*os.File, error) {
 	return logFile, nil
 }
 
-func initCron(dcCron discord.Cron) error {
+func initCron(dcCron usecase.Cron) error {
 	scheduler, err := gocron.NewScheduler()
 	if err != nil {
 		return err
 	}
 
 	_, err = scheduler.NewJob(gocron.CronJob("* * * * *", false), gocron.NewTask(func() { // every minute
-		err := dcCron.TickEvent()
-		if err != nil {
-			log.Printf("ERROR tickEvent: %v\n", err)
+		if eventErr := retry.Do(dcCron.RefreshDiscordEvent, retry.Attempts(domain.RetryMaxAttempts), retry.Delay(domain.RetryDelay)); eventErr != nil {
+			log.Printf("ERROR RefreshDiscordEvent: %v\n", eventErr)
+		}
+	}))
+	if err != nil {
+		return err
+	}
+
+	_, err = scheduler.NewJob(gocron.CronJob("*/5 * * * *", false), gocron.NewTask(func() { // every 5 minutes
+		if eventErr := retry.Do(dcCron.RefreshTwitchStreams, retry.Attempts(domain.RetryMaxAttempts), retry.Delay(domain.RetryDelay)); eventErr != nil {
+			log.Printf("ERROR RefreshTwitchStreams: %v\n", eventErr)
 		}
 	}))
 	if err != nil {
@@ -128,8 +136,8 @@ func initCron(dcCron discord.Cron) error {
 	return nil
 }
 
-func initTwitchSubscriber(config domain.Config, appToken string) (twitch.Subscriber, error) {
-	subscriber := twitch.NewSubscriber(config.Twitch.ClientId, appToken, config.Twitch.WebhookUrl, config.Twitch.WebhookSecret)
+func initTwitchSubscriber(config domain.Config, appToken string) (usecase.TwitchSubscriber, error) {
+	subscriber := usecase.NewTwitchSubscriber(config.Twitch.ClientId, appToken, config.Twitch.WebhookUrl, config.Twitch.WebhookSecret)
 	err := subscriber.UnsubscribeAll()
 	if err != nil {
 		return nil, err
@@ -145,7 +153,7 @@ func initTwitchSubscriber(config domain.Config, appToken string) (twitch.Subscri
 	return subscriber, nil
 }
 
-func resolveTwitchNameFromIds(config *domain.Config, twitchClient twitch.Client) error {
+func resolveTwitchNameFromIds(config *domain.Config, twitchClient internal.TwitchClient) error {
 	mapIdToUser, err := twitchClient.GetTwitchUsers(config.Discord.GetAllTwitchIds())
 	if err != nil {
 		return err
@@ -163,15 +171,15 @@ func resolveTwitchNameFromIds(config *domain.Config, twitchClient twitch.Client)
 	return nil
 }
 
-func initDiscord(config *domain.Config, mapTwitchIdsToState map[string]*domain.LiveState, database usecase.Database, i18n usecase.I18n) (discord.Event, func(state domain.LiveState) error, error) {
+func initDiscord(config *domain.Config, mapTwitchIdsToState map[string]*domain.LiveState, database internal.Database, i18n internal.I18n) (usecase.DiscordEvent, func(state domain.LiveState) error, error) {
 	dcSession, err := discordgo.New("Bot " + config.Discord.Token)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	dcMessage := discord.NewMessage(dcSession, config.Discord, database, i18n)
-	dcEvent := discord.NewEvent(dcSession, config.Discord, database, i18n)
-	dcCommand := discord.NewCommand(config, mapTwitchIdsToState, dcSession, dcMessage, i18n)
+	dcMessage := usecase.NewDiscordMessage(dcSession, config.Discord, database, i18n)
+	dcEvent := usecase.NewDiscordEvent(dcSession, config.Discord, database, i18n)
+	dcCommand := usecase.NewDiscordCommand(config, mapTwitchIdsToState, dcSession, dcMessage, i18n)
 
 	dcSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
@@ -197,7 +205,7 @@ func initDiscord(config *domain.Config, mapTwitchIdsToState map[string]*domain.L
 	return dcEvent, triggerFunction, nil
 }
 
-func initLiveState(mapTwitchIdToLiveState map[string]*domain.LiveState, config *domain.Config, triggerFunction func(state domain.LiveState) error, twClient twitch.Client) error {
+func initLiveState(mapTwitchIdToLiveState map[string]*domain.LiveState, config *domain.Config, triggerFunction func(state domain.LiveState) error, twClient internal.TwitchClient) error {
 	var twitchIds []string
 	for twitchId := range config.Twitch.UserResolver {
 		twitchIds = append(twitchIds, twitchId)

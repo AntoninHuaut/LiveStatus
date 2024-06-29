@@ -1,4 +1,4 @@
-package twitch
+package usecase
 
 import (
 	"LiveStatus/src/domain"
@@ -9,31 +9,31 @@ import (
 	"log"
 )
 
-type Subscriber interface {
+type TwitchSubscriber interface {
 	GetSubscriptions() (*esb.RequestStatus, error)
 	UnsubscribeAll() error
 	SubscribeAll(broadcasterUserIds []string) (int, int, error)
 }
 
-func NewSubscriber(clientId string, appToken string, webhookUrl string, webhookSecret string) Subscriber {
-	return &subscriber{
+func NewTwitchSubscriber(clientId string, appToken string, webhookUrl string, webhookSecret string) TwitchSubscriber {
+	return &twitchSubscriber{
 		client:        esf.NewSubClient(esf.NewStaticCredentials(clientId, appToken)),
 		webhookUrl:    webhookUrl,
 		webhookSecret: webhookSecret,
 	}
 }
 
-type subscriber struct {
+type twitchSubscriber struct {
 	client        *esf.SubClient
 	webhookUrl    string
 	webhookSecret string
 }
 
-func (s *subscriber) GetSubscriptions() (*esb.RequestStatus, error) {
+func (s *twitchSubscriber) GetSubscriptions() (*esb.RequestStatus, error) {
 	return s.client.GetSubscriptions(context.Background(), esf.StatusAny)
 }
 
-func (s *subscriber) UnsubscribeAll() error {
+func (s *twitchSubscriber) UnsubscribeAll() error {
 	subscriptions, err := s.GetSubscriptions()
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (s *subscriber) UnsubscribeAll() error {
 //   - int: the total cost used
 //   - int: the maximum total cost allowed
 //   - error: any error that occurred
-func (s *subscriber) SubscribeAll(broadcasterUserIds []string) (int, int, error) {
+func (s *twitchSubscriber) SubscribeAll(broadcasterUserIds []string) (int, int, error) {
 	if len(broadcasterUserIds) == 0 {
 		return 0, 0, errors.New("no broadcasterUserIds provided")
 	}

@@ -1,8 +1,8 @@
-package discord
+package usecase
 
 import (
 	"LiveStatus/src/domain"
-	"LiveStatus/src/usecase"
+	"LiveStatus/src/internal"
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-type Event interface {
+type DiscordEvent interface {
 	HandleLiveState(state domain.LiveState) error
 }
 
-func NewEvent(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, database usecase.Database, i18n usecase.I18n) Event {
-	return &event{
+func NewDiscordEvent(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, database internal.Database, i18n internal.I18n) DiscordEvent {
+	return &discordEvent{
 		database:   database,
 		dcInstance: dcInstance,
 		dConfig:    dConfig,
@@ -23,14 +23,14 @@ func NewEvent(dcInstance *discordgo.Session, dConfig domain.DiscordConfig, datab
 	}
 }
 
-type event struct {
-	database   usecase.Database
+type discordEvent struct {
+	database   internal.Database
 	dcInstance *discordgo.Session
 	dConfig    domain.DiscordConfig
-	i18n       usecase.I18n
+	i18n       internal.I18n
 }
 
-func (m event) HandleLiveState(state domain.LiveState) error {
+func (m discordEvent) HandleLiveState(state domain.LiveState) error {
 	var errs []error
 	for guildId, notifiers := range m.dConfig.Servers {
 		for _, notifier := range notifiers {
@@ -87,7 +87,7 @@ func (m event) HandleLiveState(state domain.LiveState) error {
 	return errors.Join(errs...)
 }
 
-func (m event) getEventParams(lang string, state domain.LiveState) *discordgo.GuildScheduledEventParams {
+func (m discordEvent) getEventParams(lang string, state domain.LiveState) *discordgo.GuildScheduledEventParams {
 	i18nMessages := m.i18n.GetMessages(lang).Discord.Event
 	streamVariables := state.GetStreamVariables("R")
 	return &discordgo.GuildScheduledEventParams{

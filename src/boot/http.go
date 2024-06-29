@@ -1,13 +1,13 @@
 package boot
 
 import (
-	"LiveStatus/src/usecase/twitch"
+	"LiveStatus/src/usecase"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-func StartHttpHandler(handler twitch.Handler, port int) {
+func StartHttpHandler(handler usecase.TwitchHandler, port int) {
 	done := make(chan bool)
 	go func() {
 		err := http.ListenAndServe(":"+strconv.Itoa(port), handler.GetHandler())

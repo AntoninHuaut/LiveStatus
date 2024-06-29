@@ -1,7 +1,8 @@
-package twitch
+package usecase
 
 import (
 	"LiveStatus/src/domain"
+	"LiveStatus/src/internal"
 	"fmt"
 	"github.com/avast/retry-go/v4"
 	esb "github.com/dnsge/twitch-eventsub-bindings"
@@ -9,45 +10,45 @@ import (
 	"log"
 )
 
-type Handler interface {
+type TwitchHandler interface {
 	GetHandler() *esf.SubHandler
 }
 
-func NewHandler(mapTwitchIdsToState map[string]*domain.LiveState, twClient Client, webhookSecret string) Handler {
+func NewTwitchHandler(mapTwitchIdsToState map[string]*domain.LiveState, twClient internal.TwitchClient, webhookSecret string) TwitchHandler {
 	subHandler := esf.NewSubHandler(true, []byte(webhookSecret))
-	h := &handler{
+	h := &twitchHandler{
 		handler:             subHandler,
 		mapTwitchIdsToState: mapTwitchIdsToState,
 		twClient:            twClient,
 	}
 
 	subHandler.HandleChannelUpdate = func(headers *esb.ResponseHeaders, event *esb.EventChannelUpdate) {
-		log.Printf("HandleChannelUpdate: %s\n", event.BroadcasterUserID)
+		log.Printf("HandleChannelUpdate (twitchId=%s)\n", event.BroadcasterUserID)
 		h.updateLiveState(event.BroadcasterUserID, headers.SubscriptionType)
 	}
 	subHandler.HandleStreamOnline = func(headers *esb.ResponseHeaders, event *esb.EventStreamOnline) {
-		log.Printf("HandleStreamOnline: %s\n", event.BroadcasterUserID)
+		log.Printf("HandleStreamOnline (twitchId=%s)\n", event.BroadcasterUserID)
 		h.updateLiveState(event.BroadcasterUserID, headers.SubscriptionType)
 	}
 	subHandler.HandleStreamOffline = func(headers *esb.ResponseHeaders, event *esb.EventStreamOffline) {
-		log.Printf("HandleStreamOffline: %s\n", event.BroadcasterUserID)
+		log.Printf("HandleStreamOffline (twitchId=%s)\n", event.BroadcasterUserID)
 		h.updateLiveState(event.BroadcasterUserID, headers.SubscriptionType)
 	}
 
 	return h
 }
 
-type handler struct {
+type twitchHandler struct {
 	handler             *esf.SubHandler
 	mapTwitchIdsToState map[string]*domain.LiveState
-	twClient            Client
+	twClient            internal.TwitchClient
 }
 
-func (h *handler) GetHandler() *esf.SubHandler {
+func (h *twitchHandler) GetHandler() *esf.SubHandler {
 	return h.handler
 }
 
-func (h *handler) updateLiveState(twitchId string, twitchSubscriptionType string) {
+func (h *twitchHandler) updateLiveState(twitchId string, twitchSubscriptionType string) {
 	errorAndLog := func(format string, args ...any) error {
 		err := fmt.Errorf(format, args...)
 		log.Printf("%v\n", err)
@@ -56,14 +57,14 @@ func (h *handler) updateLiveState(twitchId string, twitchSubscriptionType string
 
 	go func() {
 		err := retry.Do(func() error {
-			if liveState, ok := h.mapTwitchIdsToState[twitchId]; ok {
+			if liveState, stateOk := h.mapTwitchIdsToState[twitchId]; stateOk {
 				streams, err := h.twClient.GetStreams([]string{twitchId})
 				if err != nil {
 					return errorAndLog("ERROR updateLiveState GetStreams (twitchId=%s): %v", twitchId, err)
 				}
 
 				var setLiveStateErr error
-				if stream, ok := streams[twitchId]; ok {
+				if stream, streamOk := streams[twitchId]; streamOk {
 					if twitchSubscriptionType == domain.StreamOffline {
 						return errorAndLog("  ERROR updateLiveState prevent SetLiveState online (twitchId=%s), received StreamOffline, streams: %+v", twitchId, streams)
 					}
