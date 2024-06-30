@@ -55,20 +55,28 @@ func (c cron) RefreshTwitchStreams() error {
 	}
 
 	var errs []error
+	var updatedTwitchId = map[bool][]string{true: {}, false: {}}
 	for twitchId, state := range c.mapTwitchIdsToState {
 		var setLiveStateErr error
 		if stream, streamOk := streams[twitchId]; streamOk {
 			setLiveStateErr = state.SetLiveState(&stream)
-			log.Printf("RefreshTwitchStreams SetLiveState online (twitchId=%s)\n", twitchId)
-		} else {
+			updatedTwitchId[true] = append(updatedTwitchId[true], twitchId)
+		} else if state.IsOnline() {
 			setLiveStateErr = state.SetLiveState(nil)
-			log.Printf("RefreshTwitchStreams SetLiveState offline (twitchId=%s)\n", twitchId)
+			updatedTwitchId[false] = append(updatedTwitchId[false], twitchId)
 		}
 
 		if setLiveStateErr != nil {
 			errs = append(errs, setLiveStateErr)
 			log.Printf("ERROR RefreshTwitchStreams SetLiveState (twitchId=%s): %v", twitchId, setLiveStateErr)
 		}
+	}
+
+	if mapTwitchIds, ok := updatedTwitchId[true]; ok && len(mapTwitchIds) > 0 {
+		log.Printf("RefreshTwitchStreams SetLiveState online (twitchIds=%s)\n", mapTwitchIds)
+	}
+	if mapTwitchIds, ok := updatedTwitchId[false]; ok && len(mapTwitchIds) > 0 {
+		log.Printf("RefreshTwitchStreams SetLiveState offline (twitchIds=%s)\n", mapTwitchIds)
 	}
 
 	return errors.Join(errs...)
