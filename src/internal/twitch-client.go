@@ -12,8 +12,6 @@ import (
 	"strings"
 )
 
-const ()
-
 type TwitchClient interface {
 	GenerateTwitchAppToken() (*string, error)
 	GetTwitchUsers(userIds []string) (map[string]domain.TwitchUserResponse, error)
@@ -133,7 +131,9 @@ func createTwitchRequest[T any](method string, url string, headers map[string]st
 		if err != nil {
 			return nil, err
 		}
-		defer res.Body.Close()
+		defer func() {
+			_ = res.Body.Close()
+		}()
 
 		if res.StatusCode != http.StatusOK {
 			return nil, errors.New(fmt.Sprintf("twitch request failed with status code %d", res.StatusCode))

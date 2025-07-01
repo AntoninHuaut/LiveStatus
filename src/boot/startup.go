@@ -74,14 +74,11 @@ func Init(config *domain.Config) (usecase.TwitchHandler, *os.File, internal.Data
 		return nil, logFile, database, err
 	}
 
-	if initLiveState(mapTwitchIdsToState, config, triggerFunction, twClient) != nil {
+	if err = initLiveState(mapTwitchIdsToState, config, triggerFunction, twClient); err != nil {
 		return nil, logFile, database, err
 	}
 
 	cron := usecase.NewCron(dcEvent, mapTwitchIdsToState, twClient)
-	if err != nil {
-		return nil, logFile, database, err
-	}
 
 	err = initCron(cron)
 	if err != nil {

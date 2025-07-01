@@ -66,7 +66,7 @@ func (l *LiveState) GetStreamVariables(timestampStyle string) map[string]string 
 func (l *LiveState) SetLiveState(twResponse *TwitchStreamResponse) error {
 	l.OnlineState.IsLive = twResponse != nil && twResponse.Type == twitchTypeLive
 
-	if l.IsOnline() {
+	if l.IsOnline() && twResponse != nil {
 		err := l.updateOnlineState(twResponse.GameName, twResponse.Title, twResponse.ViewerCount, twResponse.StartedAt, twResponse.ThumbnailUrl, twResponse.GameId)
 		if err != nil {
 			return err
@@ -119,7 +119,9 @@ func getGameImageUrl(gameId string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode == http.StatusOK {
 		return &igdbImgUrl, nil
@@ -133,7 +135,9 @@ func getBlobImg(url string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

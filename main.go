@@ -14,16 +14,10 @@ func main() {
 	handler, logFile, database, err := boot.Init(config)
 	defer func() {
 		if database != nil {
-			err := database.Close()
-			if err != nil {
-				log.Printf("ERROR closeDatabase: %v\n", err)
-			}
+			_ = database.Close()
 		}
 		if logFile != nil {
-			err := logFile.Close()
-			if err != nil {
-				log.Printf("ERROR closeLog: %v\n", err)
-			}
+			_ = logFile.Close()
 		}
 	}()
 	if err != nil {
