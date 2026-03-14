@@ -4,7 +4,6 @@ import (
 	"LiveStatus/src/domain"
 	"LiveStatus/src/internal"
 	"LiveStatus/src/usecase"
-	"context"
 	"github.com/avast/retry-go/v4"
 	"io"
 	"log"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-co-op/gocron/v2"
-	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 )
 
@@ -41,7 +39,13 @@ func Init(config *domain.Config) (usecase.TwitchHandler, *os.File, internal.Data
 		return nil, nil, nil, err
 	}
 
-	twClient := internal.NewTwitchClient(config.Twitch.ClientId, config.Twitch.ClientSecret)
+	twClient := internal.NewTwitchClient(
+		config.Twitch.ClientId,
+		config.Twitch.ClientSecret,
+		config.Twitch.WebhookUrl,
+		config.Twitch.WebhookSecret,
+		usecase.NewTwitchSubscriber,
+	)
 
 	database := internal.NewDatabase(domain.DatabaseFileName)
 	if err := database.Open(); err != nil {
@@ -53,13 +57,12 @@ func Init(config *domain.Config) (usecase.TwitchHandler, *os.File, internal.Data
 		return nil, logFile, database, err
 	}
 
-	appToken, err := twClient.GenerateTwitchAppToken()
-	if err != nil {
+	if err := twClient.Init(); err != nil {
 		return nil, logFile, database, err
 	}
 
-	_, err = initTwitchSubscriber(*config, *appToken)
-	if err != nil {
+	subscriber := twClient.GetSubscriber()
+	if err = initTwitchSubscriber(*config, subscriber); err != nil {
 		return nil, logFile, database, err
 	}
 
@@ -133,21 +136,20 @@ func initCron(dcCron usecase.Cron) error {
 	return nil
 }
 
-func initTwitchSubscriber(config domain.Config, appToken string) (usecase.TwitchSubscriber, error) {
-	subscriber := usecase.NewTwitchSubscriber(config.Twitch.ClientId, appToken, config.Twitch.WebhookUrl, config.Twitch.WebhookSecret)
+func initTwitchSubscriber(config domain.Config, subscriber domain.TwitchSubscriber) error {
 	err := subscriber.UnsubscribeAll()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	broadcasterUserIds := config.Discord.GetAllTwitchIds()
 	totalCost, maxTotalCost, err := subscriber.SubscribeAll(broadcasterUserIds)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Printf("Subscribed to %d broadcasters with a total cost of %d/%d\n", len(broadcasterUserIds), totalCost, maxTotalCost)
-	return subscriber, nil
+	return nil
 }
 
 func resolveTwitchNameFromIds(config *domain.Config, twitchClient internal.TwitchClient) error {
@@ -224,16 +226,14 @@ func initLiveState(mapTwitchIdToLiveState map[string]*domain.LiveState, config *
 			TwitchName:      userResolver.TwitchName,
 		}
 
-		errs, _ := errgroup.WithContext(context.Background())
-		errs.Go(func() error {
-			if stream, ok := streamsResponse[twitchId]; ok {
-				return liveState.SetLiveState(&stream)
-			} else {
-				return liveState.SetLiveState(nil)
+		if stream, ok := streamsResponse[twitchId]; ok {
+			if err := liveState.SetLiveState(&stream); err != nil {
+				return err
 			}
-		})
-		if err := errs.Wait(); err != nil {
-			return err
+		} else {
+			if err := liveState.SetLiveState(nil); err != nil {
+				return err
+			}
 		}
 
 		mapTwitchIdToLiveState[twitchId] = liveState

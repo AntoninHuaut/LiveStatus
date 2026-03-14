@@ -15,6 +15,13 @@ const (
 	RetryDelay       = 5 * time.Second
 )
 
+type TwitchSubscriber interface {
+	UnsubscribeAll() error
+	SubscribeAll(broadcasterUserIds []string) (int, int, error)
+}
+
+type SubscriberFactory func(clientId, appToken, webhookUrl, webhookSecret string) TwitchSubscriber
+
 type TwitchUsersResponse struct {
 	Data []TwitchUserResponse `json:"data"`
 }

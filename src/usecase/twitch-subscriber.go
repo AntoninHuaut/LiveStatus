@@ -3,19 +3,12 @@ package usecase
 import (
 	"LiveStatus/src/domain"
 	"context"
-	"errors"
+	"fmt"
 	esb "github.com/dnsge/twitch-eventsub-bindings"
 	esf "github.com/dnsge/twitch-eventsub-framework"
-	"log"
 )
 
-type TwitchSubscriber interface {
-	GetSubscriptions() (*esb.RequestStatus, error)
-	UnsubscribeAll() error
-	SubscribeAll(broadcasterUserIds []string) (int, int, error)
-}
-
-func NewTwitchSubscriber(clientId string, appToken string, webhookUrl string, webhookSecret string) TwitchSubscriber {
+func NewTwitchSubscriber(clientId string, appToken string, webhookUrl string, webhookSecret string) domain.TwitchSubscriber {
 	return &twitchSubscriber{
 		client:        esf.NewSubClient(esf.NewStaticCredentials(clientId, appToken)),
 		webhookUrl:    webhookUrl,
@@ -29,19 +22,18 @@ type twitchSubscriber struct {
 	webhookSecret string
 }
 
-func (s *twitchSubscriber) GetSubscriptions() (*esb.RequestStatus, error) {
+func (s *twitchSubscriber) getSubscriptions() (*esb.RequestStatus, error) {
 	return s.client.GetSubscriptions(context.Background(), esf.StatusAny)
 }
 
 func (s *twitchSubscriber) UnsubscribeAll() error {
-	subscriptions, err := s.GetSubscriptions()
+	subscriptions, err := s.getSubscriptions()
 	if err != nil {
 		return err
 	}
 
 	for _, sub := range subscriptions.Data {
-		err = s.client.Unsubscribe(context.Background(), sub.ID)
-		if err != nil {
+		if err = s.client.Unsubscribe(context.Background(), sub.ID); err != nil {
 			return err
 		}
 	}
@@ -56,15 +48,14 @@ func (s *twitchSubscriber) UnsubscribeAll() error {
 //   - error: any error that occurred
 func (s *twitchSubscriber) SubscribeAll(broadcasterUserIds []string) (int, int, error) {
 	if len(broadcasterUserIds) == 0 {
-		return 0, 0, errors.New("no broadcasterUserIds provided")
+		return 0, 0, nil
 	}
 
 	var latestResponse *esb.RequestStatus
-	var err error
 
 	for _, broadcasterUserId := range broadcasterUserIds {
 		for _, subType := range domain.SubscriptionList {
-			latestResponse, err = s.client.Subscribe(context.Background(), &esf.SubRequest{
+			resp, err := s.client.Subscribe(context.Background(), &esf.SubRequest{
 				Type: subType,
 				Condition: esb.ConditionChannelUpdate{
 					BroadcasterUserID: broadcasterUserId,
@@ -72,10 +63,10 @@ func (s *twitchSubscriber) SubscribeAll(broadcasterUserIds []string) (int, int, 
 				Callback: s.webhookUrl,
 				Secret:   s.webhookSecret,
 			})
-
 			if err != nil {
-				log.Fatalf("Error subscribing: %v\n", err)
+				return 0, 0, fmt.Errorf("error subscribing to %s/%s: %w", broadcasterUserId, subType, err)
 			}
+			latestResponse = resp
 		}
 	}
 
